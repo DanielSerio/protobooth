@@ -1,0 +1,94 @@
+{
+  "routes": [
+    {
+      "path": "/about",
+      "isDynamic": false,
+      "filePath": "C:\\developer\\protobooth\\demos\\tanstack-router\\src\\routes\\about.tsx"
+    },
+    {
+      "path": "/dashboard",
+      "isDynamic": false,
+      "filePath": "C:\\developer\\protobooth\\demos\\tanstack-router\\src\\routes\\dashboard.tsx"
+    },
+    {
+      "path": "/",
+      "isDynamic": false,
+      "filePath": "C:\\developer\\protobooth\\demos\\tanstack-router\\src\\routes\\index.tsx"
+    },
+    {
+      "path": "/product/$slug",
+      "isDynamic": true,
+      "parameters": [
+        "slug"
+      ],
+      "filePath": "C:\\developer\\protobooth\\demos\\tanstack-router\\src\\routes\\product\\$slug.tsx"
+    },
+    {
+      "path": "/products",
+      "isDynamic": false,
+      "filePath": "C:\\developer\\protobooth\\demos\\tanstack-router\\src\\routes\\products.tsx"
+    },
+    {
+      "path": "/user/$userId",
+      "isDynamic": true,
+      "parameters": [
+        "userId"
+      ],
+      "filePath": "C:\\developer\\protobooth\\demos\\tanstack-router\\src\\routes\\user\\$userId.tsx"
+    }
+  ],
+  "fixtures": {
+    "auth": {
+      "user": {
+        "id": 1,
+        "name": "Demo User",
+        "role": "admin"
+      },
+      "isAuthenticated": true,
+      "permissions": [
+        "read",
+        "write",
+        "admin"
+      ]
+    },
+    "dynamicRoutes": {
+      "/user/$userId": [
+        {
+          "userId": "123",
+          "name": "John Doe",
+          "role": "user"
+        },
+        {
+          "userId": "456",
+          "name": "Jane Smith",
+          "role": "admin"
+        }
+      ],
+      "/product/$slug": [
+        {
+          "slug": "laptop",
+          "name": "Gaming Laptop",
+          "price": 1299
+        },
+        {
+          "slug": "mouse",
+          "name": "Wireless Mouse",
+          "price": 79
+        }
+      ]
+    }
+  },
+  "viewports": [
+    {
+      "name": "mobile",
+      "width": 375,
+      "height": 667
+    },
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900
+    }
+  ],
+  "timestamp": "2025-09-29T19:53:50.280Z"
+}

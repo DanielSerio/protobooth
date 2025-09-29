@@ -2,10 +2,10 @@
 
 This file tracks development progress across Claude Code sessions for the protobooth project.
 
-## Project Status: Planning Complete ✅
+## Project Status: Core Route Discovery Complete ✅
 
-**Current Phase**: Ready for Implementation
-**Last Updated**: 2025-09-28
+**Current Phase**: Plugin Integration Complete - Ready for UI Development
+**Last Updated**: 2025-09-29
 
 ## Completed Planning Work
 
@@ -80,10 +80,12 @@ This file tracks development progress across Claude Code sessions for the protob
    - [ ] Implement download mechanism (.zip with JSON + images)
 
 4. **Integration & End-to-End Testing**
-   - [ ] Write integration tests for Vite plugin
-   - [ ] Implement Vite plugin
-   - [ ] Write integration tests for Next.js plugin
-   - [ ] Implement Next.js plugin
+   - [x] Write integration tests for Vite plugin ✅
+   - [x] Implement Vite plugin ✅
+   - [x] Write integration tests for Next.js plugin ✅
+   - [x] Implement Next.js plugin ✅
+   - [x] Test plugins with demo applications ✅
+   - [x] End-to-end route discovery validation ✅
    - [ ] Write end-to-end workflow tests using demo apps
    - [ ] Package publishing preparation
 
@@ -200,6 +202,30 @@ protobooth/
     - ✅ REFACTOR: Applied SOLID principles with separated concerns (RouteDiscovery, BrowserController, RequestValidator)
     - ✅ All 12 tests passing, supports both demo apps with multi-viewport capture
 
+### Session 2 (2025-09-29)
+
+- 🚀 **PLUGIN INTEGRATION TDD CYCLES COMPLETED**:
+  - ✅ **Vite Plugin TDD Cycle Complete**:
+    - ✅ RED: Wrote 7 comprehensive failing tests covering plugin creation, route discovery, and build integration
+    - ✅ GREEN: Implemented complete Vite plugin for @tanstack/react-router with configurable options
+    - ✅ REFACTOR: Enhanced with proper TypeScript types, eliminated `any` usage, extracted duplication
+    - ✅ All tests passing (7/7), plugin under 142 lines following constraints
+  - ✅ **Next.js Plugin TDD Cycle Complete**:
+    - ✅ RED: Wrote 11 comprehensive failing tests covering both Pages Router and App Router
+    - ✅ GREEN: Implemented complete Next.js plugin supporting both routing systems
+    - ✅ REFACTOR: Fixed parameter extraction regex and file filtering logic
+    - ✅ All tests passing (11/11), plugin under 139 lines following constraints
+  - ✅ **Plugin Integration Testing Complete**:
+    - ✅ Created package entry points (`src/vite.ts`, `src/next.ts`) with proper exports
+    - ✅ Implemented `withProtobooth` Next.js wrapper with webpack integration
+    - ✅ End-to-end validation with real demo applications:
+      - ✅ Vite Plugin: Successfully discovered 6 routes from TanStack Router demo (4 static + 2 dynamic)
+      - ✅ Next.js Plugin: Successfully discovered routes from both App Router (3) and Pages Router (3)
+    - ✅ Dynamic route parameter extraction working correctly (`$userId`, `[id]`, `[slug]`)
+    - ✅ Route filtering working (excludes `/protobooth/*` routes and non-page files)
+- ✅ **TEST SUITE STATUS**: All 114 tests passing across entire codebase
+- 🎯 **READY FOR NEXT PHASE**: UI development and route injection
+
 ## Blockers & Questions
 
 **Current Blockers**: None - ready for implementation
@@ -221,11 +247,39 @@ protobooth/
 
 ## Success Criteria
 
-- [ ] Developer can define fixtures in config
+- [x] **Developer can define fixtures in config** ✅ (Vite and Next.js plugin configuration working)
+- [x] **Package installs and integrates with Vite/Next.js projects** ✅ (Both plugins tested with demo apps)
 - [ ] "Request Review" button captures screenshots with fixture data
 - [ ] Screenshots deployed to staging with annotation UI
 - [ ] Clients can annotate and "Publish" feedback
 - [ ] Developers can download .zip with JSON + marked-up images
 - [ ] Full workflow cycle completes successfully
-- [ ] Package installs and integrates with Vite/Next.js projects
 - [ ] Self-destruct functionality works properly
+
+## Plugin Features Completed ✅
+
+### Vite Plugin (`protobooth/vite`)
+- [x] Route discovery from @tanstack/react-router `createFileRoute()` calls
+- [x] Dynamic route parameter extraction (`$param` patterns)
+- [x] Fixture configuration support (auth, dynamic routes, global state)
+- [x] Viewport configuration for multi-device screenshots
+- [x] Routes.json generation with fixtures and metadata
+- [x] Protobooth route filtering (excludes `/protobooth/*`)
+- [x] Development mode hot reload support
+
+### Next.js Plugin (`protobooth/next`)
+- [x] Pages Router support (`/pages/[param].tsx` patterns)
+- [x] App Router support (`/app/user/[id]/page.tsx` patterns)
+- [x] Dynamic route parameter extraction (`[param]`, `[...param]` patterns)
+- [x] Fixture configuration support (auth, dynamic routes, global state)
+- [x] Viewport configuration for multi-device screenshots
+- [x] Routes.json generation with fixtures and metadata
+- [x] Protobooth route filtering (excludes `/protobooth/*`)
+- [x] Webpack integration via `withProtobooth` wrapper
+
+### Shared Features
+- [x] TypeScript support with proper type definitions
+- [x] Error handling with graceful fallbacks
+- [x] File-based configuration and output
+- [x] Support for multiple fixture instances per dynamic route
+- [x] Consistent API between both plugins

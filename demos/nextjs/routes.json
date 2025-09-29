@@ -1,0 +1,77 @@
+{
+  "routes": [
+    {
+      "path": "/blog/[slug]",
+      "isDynamic": true,
+      "parameters": [
+        "slug"
+      ],
+      "filePath": "C:\\developer\\protobooth\\demos\\nextjs\\src\\pages\\blog\\[slug].tsx"
+    },
+    {
+      "path": "/",
+      "isDynamic": false,
+      "filePath": "C:\\developer\\protobooth\\demos\\nextjs\\src\\pages\\index.tsx"
+    },
+    {
+      "path": "/user/[id]",
+      "isDynamic": true,
+      "parameters": [
+        "id"
+      ],
+      "filePath": "C:\\developer\\protobooth\\demos\\nextjs\\src\\pages\\user\\[id].tsx"
+    }
+  ],
+  "fixtures": {
+    "auth": {
+      "user": {
+        "id": 1,
+        "name": "Next.js Demo User",
+        "role": "admin"
+      },
+      "isAuthenticated": true,
+      "permissions": [
+        "read",
+        "write",
+        "admin"
+      ]
+    },
+    "dynamicRoutes": {
+      "/user/[id]": [
+        {
+          "id": "1",
+          "name": "Alice Johnson",
+          "role": "user"
+        },
+        {
+          "id": "2",
+          "name": "Bob Smith",
+          "role": "admin"
+        }
+      ],
+      "/blog/[slug]": [
+        {
+          "slug": "getting-started",
+          "title": "Getting Started with Next.js"
+        },
+        {
+          "slug": "advanced-routing",
+          "title": "Advanced Routing Patterns"
+        }
+      ]
+    }
+  },
+  "viewports": [
+    {
+      "name": "mobile",
+      "width": 375,
+      "height": 667
+    },
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900
+    }
+  ],
+  "timestamp": "2025-09-29T19:53:50.332Z"
+}

@@ -1,5 +1,5 @@
 // GREEN: Minimal implementation to make tests pass
-import type { Plugin } from 'vite';
+import type { Plugin, ResolvedConfig } from 'vite';
 import type { FixtureConfig, ViewportConfig } from '@/types/fixtures';
 import path from 'path';
 import fs from 'fs/promises';
@@ -8,6 +8,7 @@ export interface VitePluginOptions {
   fixtures?: FixtureConfig;
   viewports?: ViewportConfig[];
   dev?: boolean;
+  routesDir?: string;
 }
 
 export interface DiscoveredRoute {
@@ -17,11 +18,44 @@ export interface DiscoveredRoute {
   filePath: string;
 }
 
+interface RoutesData {
+  routes: DiscoveredRoute[];
+  fixtures: FixtureConfig;
+  viewports: ViewportConfig[];
+  timestamp: string;
+}
+
 export function createVitePlugin(options: VitePluginOptions = {}): Plugin & {
   discoverRoutes: (routesDir: string) => Promise<DiscoveredRoute[]>;
 } {
-  const { fixtures = {}, viewports = [], dev = false } = options;
-  let viteConfig: any;
+  const {
+    fixtures = {},
+    viewports = [],
+    dev = false,
+    routesDir = 'src/routes'
+  } = options;
+  let viteConfig: ResolvedConfig;
+
+  // Helper function to generate routes.json
+  async function generateRoutesJson(): Promise<void> {
+    try {
+      const projectRoot = viteConfig?.root || process.cwd();
+      const fullRoutesDir = path.join(projectRoot, routesDir);
+      const routes = await plugin.discoverRoutes(fullRoutesDir);
+
+      const routesData: RoutesData = {
+        routes,
+        fixtures,
+        viewports,
+        timestamp: new Date().toISOString()
+      };
+
+      const outputPath = path.join(projectRoot, 'routes.json');
+      await fs.writeFile(outputPath, JSON.stringify(routesData, null, 2));
+    } catch (error) {
+      console.warn('Protobooth: Failed to generate routes.json:', error);
+    }
+  }
 
   const plugin: Plugin & { discoverRoutes: (routesDir: string) => Promise<DiscoveredRoute[]> } = {
     name: 'protobooth',
@@ -31,48 +65,13 @@ export function createVitePlugin(options: VitePluginOptions = {}): Plugin & {
     },
 
     async buildStart() {
-      try {
-        // Discover routes from the project
-        const projectRoot = viteConfig?.root || process.cwd();
-        const routesDir = path.join(projectRoot, 'src/routes');
-        const routes = await this.discoverRoutes(routesDir);
-
-        // Generate routes.json with fixtures
-        const routesData = {
-          routes,
-          fixtures,
-          viewports,
-          timestamp: new Date().toISOString()
-        };
-
-        const outputPath = path.join(projectRoot, 'routes.json');
-        await fs.writeFile(outputPath, JSON.stringify(routesData, null, 2));
-      } catch (error) {
-        // Handle errors gracefully - don't break the build
-        console.warn('Protobooth: Failed to generate routes.json:', error);
-      }
+      await generateRoutesJson();
     },
 
     handleHotUpdate: dev ? async (ctx) => {
       // Regenerate routes on file changes in development
       if (ctx.file.includes('/routes/')) {
-        try {
-          const projectRoot = viteConfig?.root || process.cwd();
-          const routesDir = path.join(projectRoot, 'src/routes');
-          const routes = await plugin.discoverRoutes(routesDir);
-
-          const routesData = {
-            routes,
-            fixtures,
-            viewports,
-            timestamp: new Date().toISOString()
-          };
-
-          const outputPath = path.join(projectRoot, 'routes.json');
-          await fs.writeFile(outputPath, JSON.stringify(routesData, null, 2));
-        } catch (error) {
-          console.warn('Protobooth: Failed to regenerate routes:', error);
-        }
+        await generateRoutesJson();
       }
     } : undefined,
 

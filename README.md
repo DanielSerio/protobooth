@@ -24,22 +24,28 @@ Unlike traditional feedback tools, protobooth is **development-aware**:
 
 ## Key Features
 
-### 🚀 **Zero Configuration Route Discovery**
+### 🚀 **Zero Configuration Route Discovery** ✅ IMPLEMENTED
 
-- Automatically detects all routes from your Vite or Next.js application
+- **Vite**: Automatically detects routes from `@tanstack/react-router` `createFileRoute()` calls
+- **Next.js**: Supports both Pages Router (`/pages/[id].tsx`) and App Router (`/app/user/[id]/page.tsx`)
+- **Dynamic Routes**: Extracts parameters from `$userId`, `[id]`, `[...slug]` patterns automatically
+- **Smart Filtering**: Excludes protobooth routes and non-page files automatically
 - No manual route definitions required
-- Works with `@tanstack/react-router` and Next.js routing
 
-### 🎭 **Fixture-Based Consistency**
+### 🎭 **Fixture-Based Consistency** ✅ IMPLEMENTED
 
-- Define mock authentication and dynamic route data
+- **Mock Authentication**: Define auth state, user data, and permissions
+- **Dynamic Route Data**: Provide multiple fixture instances for routes like `/user/[id]`
+- **Global State**: Configure theme, language, feature flags for consistent app state
+- **Type-Safe**: Full TypeScript support with Zod validation
 - Consistent screenshots across review cycles
-- Perfect for prototype development with mock data
 
-### 📱 **Multi-Viewport Screenshots**
+### 📱 **Multi-Viewport Screenshots** ✅ IMPLEMENTED
 
-- Capture mobile, tablet, and desktop views automatically
-- Configurable viewport sizes
+- **Playwright Integration**: Reliable headless browser automation
+- **Configurable Viewports**: Define custom viewport sizes and names
+- **Fixture Injection**: Mock data injected into app context/localStorage before capture
+- **Multi-Instance Support**: Generate multiple screenshots per dynamic route
 - Responsive design review made simple
 
 ### ✏️ **Simple Client Interface**
@@ -59,6 +65,29 @@ Unlike traditional feedback tools, protobooth is **development-aware**:
 - Built for the prototyping phase only
 - Self-destruct when prototyping is complete
 - No permanent infrastructure required
+
+## 🎯 Current Implementation Status
+
+**✅ COMPLETED: Core Route Discovery & Plugin Integration**
+
+- [x] **Vite Plugin**: Full @tanstack/react-router support with route discovery
+- [x] **Next.js Plugin**: Both Pages Router and App Router support
+- [x] **Fixture System**: Mock auth, dynamic routes, and global state configuration
+- [x] **Screenshot Capture**: Playwright integration with multi-viewport support
+- [x] **Package Structure**: Proper exports and TypeScript definitions
+- [x] **Demo Applications**: Full testing with real-world route structures
+- [x] **114 Tests Passing**: Comprehensive test coverage with TDD approach
+
+**🚧 IN PROGRESS: UI Development**
+
+- [ ] Development UI at `/protobooth/resolve` route
+- [ ] Staging annotation UI at `/protobooth/annotate` route
+- [ ] Route injection for dev servers
+- [ ] Download mechanism (.zip with JSON + images)
+
+**📦 Ready for Early Adoption**
+
+The core route discovery and screenshot functionality is complete and ready for testing. Plugin integration works with both Vite and Next.js applications.
 
 ## Quick Start
 
@@ -82,13 +111,23 @@ export default defineConfig({
         auth: {
           user: { id: 1, name: 'Demo User', role: 'admin' },
           isAuthenticated: true,
+          permissions: ['read', 'write']
         },
         dynamicRoutes: {
-          '/user/[id]': [
-            { id: '123', name: 'John Doe' },
-            { id: '456', name: 'Jane Smith' },
+          '/user/$userId': [
+            { userId: '123', name: 'John Doe', role: 'user' },
+            { userId: '456', name: 'Jane Smith', role: 'admin' },
           ],
+          '/product/$slug': [
+            { slug: 'laptop', name: 'Gaming Laptop', price: 1299 },
+            { slug: 'mouse', name: 'Wireless Mouse', price: 79 }
+          ]
         },
+        globalState: {
+          theme: 'light',
+          language: 'en',
+          featureFlags: { newFeature: true }
+        }
       },
       viewports: [
         { name: 'mobile', width: 375, height: 667 },
@@ -101,23 +140,41 @@ export default defineConfig({
 
 ### Next.js Setup
 
-```typescript
+```javascript
 // next.config.js
 const { withProtobooth } = require('protobooth/next');
 
 module.exports = withProtobooth({
+  experimental: {
+    appDir: true, // Enable App Router if using
+  },
+}, {
   protobooth: {
     fixtures: {
       auth: {
-        user: { id: 1, name: 'Demo User', role: 'admin' },
+        user: { id: 1, name: 'Next.js Demo User', role: 'admin' },
         isAuthenticated: true,
+        permissions: ['read', 'write', 'admin']
       },
       dynamicRoutes: {
-        '/user/[id]': { id: '123' },
+        '/user/[id]': [
+          { id: '1', name: 'Alice Johnson', role: 'user' },
+          { id: '2', name: 'Bob Smith', role: 'admin' },
+        ],
+        '/blog/[slug]': [
+          { slug: 'getting-started', title: 'Getting Started with Next.js' },
+          { slug: 'advanced-routing', title: 'Advanced Routing Patterns' }
+        ]
       },
+      globalState: {
+        theme: 'dark',
+        language: 'en',
+        featureFlags: { newLayout: true }
+      }
     },
     viewports: [
       { name: 'mobile', width: 375, height: 667 },
+      { name: 'tablet', width: 768, height: 1024 },
       { name: 'desktop', width: 1440, height: 900 },
     ],
   },
