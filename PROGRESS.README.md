@@ -239,13 +239,23 @@ protobooth/
   - ✅ **Live Demo Validation**:
     - ✅ Package built and linked with `npm link`
     - ✅ Demo apps configured to use linked package (`protobooth/vite`, `protobooth/next`)
-    - ✅ Successfully tested Vite demo at http://localhost:5179/protobooth/resolve
+    - ✅ Successfully tested Vite demo at http://localhost:5173/protobooth/resolve
+    - ✅ Successfully tested Next.js demo at http://localhost:3000/protobooth/resolve
     - ✅ Configuration properly injected with fixtures and viewports
     - ✅ routes.json automatically generated during dev server startup
+    - ✅ Both `/protobooth/resolve` and `/protobooth/annotate` routes working in both frameworks
   - ✅ **Integration Test Coverage**:
     - ✅ Removed problematic `vite-live-server.test.ts` (esbuild environment issues)
     - ✅ Comprehensive coverage with existing mock-based tests
     - ✅ Demo app integration tests validate real-world usage
+  - ✅ **Demo App Fixes**:
+    - ✅ Created missing `tsconfig.node.json` for TanStack Router demo
+    - ✅ Fixed tsup config to build correct entry points (`src/vite.ts`, `src/next.ts`)
+    - ✅ Fixed package.json exports to match tsup output (`.js` for CJS, `.mjs` for ESM)
+    - ✅ Resolved Next.js App Router / Pages Router conflict (using Pages Router only)
+    - ✅ Created Next.js page files for `/protobooth/resolve` and `/protobooth/annotate`
+    - ✅ Fixed hydration errors by using proper Next.js conventions (`<Head>` component)
+    - ✅ Added `@tanstack/router-plugin` to TanStack Router demo dependencies
 - ✅ **TEST SUITE STATUS**: All 146 tests passing across entire codebase
 - 🎯 **READY FOR NEXT PHASE**: UI component development (React + SCSS)
 
