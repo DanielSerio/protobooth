@@ -1,0 +1,40 @@
+import { clsx } from 'clsx';
+
+interface ProgressBarProps {
+  value: number;
+  max?: number;
+  label?: string;
+  showPercentage?: boolean;
+  className?: string;
+}
+
+export function ProgressBar({
+  value,
+  max = 100,
+  label,
+  showPercentage = true,
+  className
+}: ProgressBarProps) {
+  const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+
+  return (
+    <div className={clsx('protobooth-progress-bar', className)}>
+      {label && (
+        <div className="protobooth-progress-bar__label">
+          {label}
+          {showPercentage && (
+            <span className="protobooth-progress-bar__percentage">
+              {Math.round(percentage)}%
+            </span>
+          )}
+        </div>
+      )}
+      <div className="protobooth-progress-bar__track">
+        <div
+          className="protobooth-progress-bar__fill"
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </div>
+  );
+}

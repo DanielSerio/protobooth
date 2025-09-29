@@ -1,0 +1,24 @@
+@use ' ../config';
+
+html:has(.protobooth-layout) {
+  &,
+  body {
+    height: 0;
+    position: static;
+    width: 100%;
+    overflow: visible;
+  }
+
+  body {
+    margin: 0;
+  }
+}
+
+.protobooth-layout {
+  min-height: 100svh;
+  width: 100%;
+  position: relative;
+  z-index: 0;
+  padding-left: #{config.$sidebar-width * 1px}; // account for fixed sidebar
+  padding-bottom: #{config.$toolbar-height * 2px}; // account for fixed toolbar stack
+}

@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+demos/*/node_modules/
+
+# Build outputs
+dist/
+.next/
+demos/*/.next/
+demos/*/dist/
+
+# Protobooth generated files
+.protobooth/
+screenshots/
+annotations/
+
+# Generated files
+demos/tanstack-router/src/routeTree.gen.ts
+
+# Package files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Logs
+*.log
