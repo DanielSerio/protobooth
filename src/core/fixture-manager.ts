@@ -161,7 +161,7 @@ export class FixtureManager {
       throw new Error(`Invalid auth state: ${state}`);
     }
 
-    return this.config.auth[state];
+    return this.config.auth?.[state] ?? null;
   }
 
   getDynamicRouteFixtures(routePattern: string): DynamicRouteFixture[] {
@@ -169,7 +169,7 @@ export class FixtureManager {
       return [];
     }
 
-    return this.config.dynamicRoutes[routePattern] || [];
+    return this.config.dynamicRoutes?.[routePattern] || [];
   }
 
   getGlobalState(): Record<string, any> | undefined {

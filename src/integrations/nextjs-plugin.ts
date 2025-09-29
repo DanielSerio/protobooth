@@ -1,11 +1,12 @@
-import type { FixtureConfig, ViewportConfig } from '@/types/fixtures';
+import type { FixtureConfig } from '@/types/fixtures';
+import type { ViewportConfig } from '@/types/screenshot';
 import path from 'path';
 import fs from 'fs/promises';
 
 export interface NextjsPluginOptions {
   fixtures?: FixtureConfig;
   viewports?: ViewportConfig[];
-  dev?: boolean;
+  enabled?: boolean;
   routesDir?: string;
   routerType?: 'pages' | 'app';
 }
@@ -28,7 +29,6 @@ export function createNextPlugin(options: NextjsPluginOptions = {}) {
   const {
     fixtures = {},
     viewports = [],
-    dev = false,
     routesDir = 'pages',
     routerType = 'pages'
   } = options;
@@ -36,11 +36,11 @@ export function createNextPlugin(options: NextjsPluginOptions = {}) {
   const plugin = {
     name: 'protobooth-nextjs',
 
-    async discoverRoutes(dir: string, type: 'pages' | 'app' = routerType): Promise<DiscoveredRoute[]> {
+    async discoverRoutes(dir: string, routerTypeParam: 'pages' | 'app' = routerType): Promise<DiscoveredRoute[]> {
       const routes: DiscoveredRoute[] = [];
 
       try {
-        await this.discoverRoutesRecursive(dir, '', routes, type);
+        await this.discoverRoutesRecursive(dir, '', routes, routerTypeParam);
       } catch (error) {
         console.warn('Protobooth: Route discovery failed:', error);
       }
@@ -49,7 +49,7 @@ export function createNextPlugin(options: NextjsPluginOptions = {}) {
       return routes.filter(route => !route.path.startsWith('/protobooth'));
     },
 
-    async discoverRoutesRecursive(dir: string, basePath: string, routes: DiscoveredRoute[], type: 'pages' | 'app'): Promise<void> {
+    async discoverRoutesRecursive(dir: string, basePath: string, routes: DiscoveredRoute[], routerTypeParam: 'pages' | 'app'): Promise<void> {
       try {
         const entries = await fs.readdir(dir, { withFileTypes: true });
 
@@ -64,9 +64,9 @@ export function createNextPlugin(options: NextjsPluginOptions = {}) {
 
             // Recurse into subdirectories
             const subPath = basePath + '/' + entry.name;
-            await this.discoverRoutesRecursive(fullPath, subPath, routes, type);
+            await this.discoverRoutesRecursive(fullPath, subPath, routes, routerTypeParam);
           } else if (entry.isFile()) {
-            const route = this.parseRouteFromFile(entry.name, fullPath, basePath, type);
+            const route = this.parseRouteFromFile(entry.name, fullPath, basePath, routerTypeParam);
             if (route) {
               routes.push(route);
             }
@@ -77,9 +77,9 @@ export function createNextPlugin(options: NextjsPluginOptions = {}) {
       }
     },
 
-    parseRouteFromFile(fileName: string, filePath: string, basePath: string, type: 'pages' | 'app'): DiscoveredRoute | null {
+    parseRouteFromFile(fileName: string, filePath: string, basePath: string, routerTypeParam: 'pages' | 'app'): DiscoveredRoute | null {
       // Skip non-page files
-      if (type === 'pages') {
+      if (routerTypeParam === 'pages') {
         // Pages router: only include .tsx/.jsx files, exclude _app, _document, etc.
         if (!fileName.match(/\.(tsx|jsx)$/) || fileName.startsWith('_')) {
           return null;
@@ -93,7 +93,7 @@ export function createNextPlugin(options: NextjsPluginOptions = {}) {
 
       let routePath: string;
 
-      if (type === 'pages') {
+      if (routerTypeParam === 'pages') {
         // Pages router logic
         if (fileName === 'index.tsx' || fileName === 'index.jsx' || fileName === 'index.ts' || fileName === 'index.js') {
           routePath = basePath || '/';

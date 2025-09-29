@@ -1,10 +1,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { protobooth } from 'protobooth/vite';
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
+import { createVitePlugin as protobooth } from 'protobooth/vite';
 
 export default defineConfig({
   plugins: [
     react(),
+    TanStackRouterVite(),
     protobooth({
       enabled: process.env.NODE_ENV === 'development',
       fixtures: {

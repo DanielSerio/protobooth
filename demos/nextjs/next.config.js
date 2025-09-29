@@ -2,9 +2,7 @@ const { withProtobooth } = require('protobooth/next');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
+  // Using Pages Router - remove appDir to avoid conflict with src/pages
 };
 
 module.exports = withProtobooth(nextConfig, {

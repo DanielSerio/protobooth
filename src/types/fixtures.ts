@@ -26,11 +26,11 @@ export interface GlobalStateFixture {
 }
 
 export interface FixtureConfig {
-  auth: {
+  auth?: {
     authenticated: AuthFixture | null;
     unauthenticated: null;
   };
-  dynamicRoutes: {
+  dynamicRoutes?: {
     [routePattern: string]: DynamicRouteFixture[];
   };
   globalState?: GlobalStateFixture;

@@ -47,18 +47,50 @@
           "id": "2",
           "name": "Bob Smith",
           "role": "admin"
+        },
+        {
+          "id": "3",
+          "name": "Carol Davis",
+          "role": "moderator"
         }
       ],
       "/blog/[slug]": [
         {
           "slug": "getting-started",
-          "title": "Getting Started with Next.js"
+          "title": "Getting Started with Next.js",
+          "author": "John Doe"
         },
         {
           "slug": "advanced-routing",
-          "title": "Advanced Routing Patterns"
+          "title": "Advanced Routing Patterns",
+          "author": "Jane Smith"
+        }
+      ],
+      "/category/[...path]": [
+        {
+          "path": [
+            "electronics",
+            "laptops"
+          ],
+          "category": "Electronics > Laptops"
+        },
+        {
+          "path": [
+            "books",
+            "programming",
+            "javascript"
+          ],
+          "category": "Books > Programming > JavaScript"
         }
       ]
+    },
+    "globalState": {
+      "theme": "dark",
+      "language": "en",
+      "featureFlags": {
+        "newLayout": true,
+        "experimentalFeatures": true
+      }
     }
   },
   "viewports": [
@@ -68,10 +100,15 @@
       "height": 667
     },
     {
+      "name": "tablet",
+      "width": 768,
+      "height": 1024
+    },
+    {
       "name": "desktop",
       "width": 1440,
       "height": 900
     }
   ],
-  "timestamp": "2025-09-29T19:53:50.332Z"
+  "timestamp": "2025-09-29T22:45:31.197Z"
 }
