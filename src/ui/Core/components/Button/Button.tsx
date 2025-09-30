@@ -12,9 +12,9 @@ function ButtonComponent(
   ref?: ForwardedRef<HTMLButtonElement>
 ) {
   const buttonClassName = clsx(
-    'protobooth-button',
-    `protobooth-button--${variant}`,
-    `protobooth-button--${size}`,
+    'btn',
+    `btn-${variant}`,
+    `btn-${size}`,
     className
   );
 

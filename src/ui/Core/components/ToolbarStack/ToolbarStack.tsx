@@ -5,7 +5,7 @@ export type ToolbarStackProps = Omit<AreaHTMLAttributes<HTMLAreaElement>, 'id'>;
 
 function ToolbarStack({ children }: ToolbarStackProps) {
   return (
-    <footer id='toolbarStack' className='protobooth-toolbar-stack'>
+    <footer id='toolbarStack' className='toolbar-stack'>
       {children}
     </footer>
   );

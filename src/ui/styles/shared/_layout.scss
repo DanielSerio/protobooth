@@ -1,6 +1,16 @@
-@use ' ../config';
+@use '../config/index.scss' as config;
 
-html:has(.protobooth-layout) {
+#protobooth-root {
+  display: contents;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html:has(.layout) {
   &,
   body {
     height: 0;
@@ -14,10 +24,11 @@ html:has(.protobooth-layout) {
   }
 }
 
-.protobooth-layout {
+.layout {
   min-height: 100svh;
   width: 100%;
   position: relative;
+  top: 0;
   z-index: 0;
   padding-left: #{config.$sidebar-width * 1px}; // account for fixed sidebar
   padding-bottom: #{config.$toolbar-height * 2px}; // account for fixed toolbar stack

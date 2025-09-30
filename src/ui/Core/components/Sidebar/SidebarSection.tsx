@@ -15,7 +15,7 @@ export function SidebarSection({
   children,
   ...props
 }: SidebarSectionProps) {
-  const classNames = clsx(['protobooth-sidebar-section', id, className]);
+  const classNames = clsx(['sidebar-section', id, className]);
 
   return (
     <section id={id} className={classNames} {...props}>

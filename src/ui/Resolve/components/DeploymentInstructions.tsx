@@ -29,18 +29,18 @@ export function DeploymentInstructions({
   };
 
   return (
-    <div className={clsx('protobooth-deployment-instructions', className)} data-testid={testId}>
-      <div className="protobooth-deployment-instructions__summary">
+    <div className={clsx('deployment-card', className)} data-testid={testId}>
+      <div className="summary">
         <h3>Screenshots Captured Successfully!</h3>
         <p>
           <strong>{screenshotCount} screenshots</strong> captured and saved to:
         </p>
 
-        <div className="protobooth-deployment-instructions__path">
+        <div className="path-display">
           <code>{outputPath}</code>
           <button
             onClick={handleCopyPath}
-            className="protobooth-deployment-instructions__copy-button"
+            className="btn-copy"
             title="Copy path to clipboard"
           >
             {copied ? '✓' : '📋'}
@@ -48,20 +48,20 @@ export function DeploymentInstructions({
         </div>
       </div>
 
-      <div className="protobooth-deployment-instructions__steps">
+      <div className="steps-section">
         <h4>Next Steps:</h4>
-        <ol className="protobooth-deployment-instructions__list">
+        <ol className="list-ordered">
           {instructions.map((instruction, index) => (
-            <li key={index} className="protobooth-deployment-instructions__step">
+            <li key={index} className="list-item">
               {instruction}
             </li>
           ))}
         </ol>
       </div>
 
-      <div className="protobooth-deployment-instructions__tips">
+      <div className="tips-section">
         <h4>Deployment Tips:</h4>
-        <ul className="protobooth-deployment-instructions__tips-list">
+        <ul className="list-unstyled">
           <li>Upload all files in the output directory to your staging server</li>
           <li>Ensure the annotation interface is accessible at <code>/protobooth/annotate</code></li>
           <li>Share the staging URL with your clients for review</li>

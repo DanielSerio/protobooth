@@ -18,13 +18,13 @@ export function ErrorMessage({
   'data-testid': testId
 }: ErrorMessageProps) {
   return (
-    <div className={clsx('protobooth-error-message', className)} data-testid={testId}>
-      <div className="protobooth-error-message__header">
-        <h4 className="protobooth-error-message__title">{title}</h4>
+    <div className={clsx('error-card', className)} data-testid={testId}>
+      <div className="error-header">
+        <h4 className="error-title">{title}</h4>
         {onDismiss && (
           <button
             onClick={onDismiss}
-            className="protobooth-error-message__dismiss"
+            className="btn-dismiss"
             aria-label="Dismiss error"
           >
             ×
@@ -32,14 +32,14 @@ export function ErrorMessage({
         )}
       </div>
 
-      <div className="protobooth-error-message__content">
-        <p className="protobooth-error-message__message" data-testid={`${testId}-message`}>{message}</p>
+      <div className="error-body">
+        <p className="error-text" data-testid={`${testId}-message`}>{message}</p>
 
         {details && details.length > 0 && (
-          <div className="protobooth-error-message__details">
-            <ul className="protobooth-error-message__details-list">
+          <div className="error-details">
+            <ul className="list-unstyled">
               {details.map((detail, index) => (
-                <li key={index} className="protobooth-error-message__detail">
+                <li key={index} className="list-item">
                   {detail}
                 </li>
               ))}

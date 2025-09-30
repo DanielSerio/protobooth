@@ -3,6 +3,7 @@ import type { Plugin, ResolvedConfig } from 'vite';
 import type { FixtureConfig } from '@/types/fixtures';
 import type { ViewportConfig } from '@/types/screenshot';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import fs from 'fs/promises';
 
 export interface VitePluginOptions {
@@ -83,13 +84,43 @@ export function createVitePlugin(options: VitePluginOptions = {}): Plugin & {
     res.end(html);
   }
 
-  function handleStaticAssets(_req: unknown, res: ViteHandlerResponse, url: string): void {
+  async function handleStaticAssets(_req: unknown, res: ViteHandlerResponse, url: string): Promise<void> {
     if (url.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-      res.end('/* Protobooth styles placeholder */');
-    } else if (url.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-      res.end('// Protobooth script placeholder');
+      // Serve the built CSS bundle
+      try {
+        // When this file is compiled, it will be in dist/vite.js or dist/vite.mjs
+        // The UI bundle is in dist/ui/
+        // Use Node's fileURLToPath to properly handle file:// URLs on all platforms
+        const currentFile = fileURLToPath(import.meta.url);
+        const distDir = path.dirname(currentFile);
+        const cssPath = path.join(distDir, 'ui', 'protobooth.css');
+        const css = await fs.readFile(cssPath, 'utf-8');
+        res.setHeader('Content-Type', 'text/css');
+        res.end(css);
+      } catch (error) {
+        res.setHeader('Content-Type', 'text/css');
+        res.end('/* Failed to load protobooth styles */');
+      }
+    } else if (url === '/assets/resolve.js' || url === '/assets/annotate.js') {
+      // Serve pre-built UI bundle
+      const mode = url === '/assets/resolve.js' ? 'resolve' : 'annotate';
+
+      try {
+        // When this file is compiled, it will be in dist/vite.js or dist/vite.mjs
+        // The UI bundle is in dist/ui/
+        // Use Node's fileURLToPath to properly handle file:// URLs on all platforms
+        const currentFile = fileURLToPath(import.meta.url);
+        const distDir = path.dirname(currentFile);
+        const bundlePath = path.join(distDir, 'ui', `${mode}.js`);
+        console.log('[Protobooth] Loading UI bundle from:', bundlePath);
+        const bundle = await fs.readFile(bundlePath, 'utf-8');
+        res.setHeader('Content-Type', 'application/javascript');
+        res.end(bundle);
+      } catch (error) {
+        console.error('[Protobooth] Failed to load UI bundle:', error);
+        res.writeHead(500);
+        res.end(`console.error('Failed to load Protobooth UI bundle: ${error}');`);
+      }
     } else {
       res.writeHead(404);
       res.end();
@@ -102,16 +133,15 @@ export function createVitePlugin(options: VitePluginOptions = {}): Plugin & {
 <head>
   <title>Protobooth - ${mode === 'resolve' ? 'Development' : 'Annotation'}</title>
   <link rel="stylesheet" href="/protobooth/assets/style.css">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 </head>
 <body>
-  <div id="protobooth-root">
-    <h1>Protobooth ${mode === 'resolve' ? 'Development UI' : 'Annotation UI'}</h1>
-    <p>Route injection working! Mode: ${mode}</p>
-  </div>
+  <div id="protobooth-root"></div>
   <script>
     window.__PROTOBOOTH_CONFIG__ = ${JSON.stringify(config)};
   </script>
-  <script src="/protobooth/assets/app.js"></script>
+  <script src="/protobooth/assets/${mode}.js"></script>
 </body>
 </html>`;
   }
@@ -184,6 +214,49 @@ export function createVitePlugin(options: VitePluginOptions = {}): Plugin & {
             return handleAnnotateRoute(req, res, { fixtures, viewports });
           } else if (url.startsWith('/assets/')) {
             return handleStaticAssets(req, res, url);
+          } else if (url.startsWith('/api/files/')) {
+            // Handle file API requests
+            const filename = decodeURIComponent(url.replace('/api/files/', ''));
+            const projectRoot = viteConfig?.root || process.cwd();
+            const filePath = path.join(projectRoot, filename);
+
+            if (req.method === 'GET') {
+              try {
+                const content = await fs.readFile(filePath, 'utf-8');
+                res.setHeader('Content-Type', 'text/plain');
+                res.end(content);
+              } catch (error) {
+                res.writeHead(404);
+                res.end(JSON.stringify({ error: 'File not found' }));
+              }
+            } else if (req.method === 'HEAD') {
+              try {
+                await fs.access(filePath);
+                res.writeHead(200);
+                res.end();
+              } catch (error) {
+                res.writeHead(404);
+                res.end();
+              }
+            } else if (req.method === 'POST') {
+              let body = '';
+              req.on('data', chunk => { body += chunk; });
+              req.on('end', async () => {
+                try {
+                  const { content } = JSON.parse(body);
+                  await fs.writeFile(filePath, content, 'utf-8');
+                  res.writeHead(200);
+                  res.end(JSON.stringify({ success: true }));
+                } catch (error) {
+                  res.writeHead(500);
+                  res.end(JSON.stringify({ error: 'Failed to write file' }));
+                }
+              });
+            } else {
+              res.writeHead(405);
+              res.end();
+            }
+            return;
           } else {
             next();
           }

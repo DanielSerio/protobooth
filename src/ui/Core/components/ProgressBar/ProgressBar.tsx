@@ -18,20 +18,20 @@ export function ProgressBar({
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
   return (
-    <div className={clsx('protobooth-progress-bar', className)}>
+    <div className={clsx('progress-bar', className)}>
       {label && (
-        <div className="protobooth-progress-bar__label">
+        <div className="progress-label">
           {label}
           {showPercentage && (
-            <span className="protobooth-progress-bar__percentage">
+            <span className="progress-percentage">
               {Math.round(percentage)}%
             </span>
           )}
         </div>
       )}
-      <div className="protobooth-progress-bar__track">
+      <div className="progress-track">
         <div
-          className="protobooth-progress-bar__fill"
+          className="progress-fill"
           style={{ width: `${percentage}%` }}
         />
       </div>

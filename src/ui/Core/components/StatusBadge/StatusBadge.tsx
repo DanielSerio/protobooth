@@ -12,42 +12,42 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
       case 'in-development':
         return {
           text: 'In Development',
-          className: 'protobooth-status-badge--development'
+          className: 'status-development'
         };
       case 'reviews-requested':
         return {
           text: 'Reviews Requested',
-          className: 'protobooth-status-badge--requested'
+          className: 'status-requested'
         };
       case 'in-review':
         return {
           text: 'In Review',
-          className: 'protobooth-status-badge--review'
+          className: 'status-review'
         };
       case 'submitted-for-development':
         return {
           text: 'Submitted For Development',
-          className: 'protobooth-status-badge--submitted'
+          className: 'status-submitted'
         };
       case 'pending':
         return {
           text: 'Pending',
-          className: 'protobooth-status-badge--pending'
+          className: 'status-pending'
         };
       case 'in-progress':
         return {
           text: 'In Progress',
-          className: 'protobooth-status-badge--progress'
+          className: 'status-progress'
         };
       case 'resolved':
         return {
           text: 'Resolved',
-          className: 'protobooth-status-badge--resolved'
+          className: 'status-resolved'
         };
       default:
         return {
           text: 'Unknown',
-          className: 'protobooth-status-badge--unknown'
+          className: 'status-unknown'
         };
     }
   };
@@ -55,7 +55,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   const config = getStatusConfig();
 
   return (
-    <span className={clsx('protobooth-status-badge', config.className, className)}>
+    <span className={clsx('badge', config.className, className)}>
       {config.text}
     </span>
   );

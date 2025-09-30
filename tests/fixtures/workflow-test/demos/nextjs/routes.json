@@ -1,0 +1,1 @@
+{"appRouter":[{"path":"/","isDynamic":false,"parameters":[]},{"path":"/user/[id]","isDynamic":true,"parameters":["id"]}]}

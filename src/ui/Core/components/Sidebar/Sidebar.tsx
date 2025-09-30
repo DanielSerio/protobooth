@@ -8,7 +8,7 @@ export type SidebarProps = Omit<AreaHTMLAttributes<HTMLAreaElement>, 'id'>;
  * Main Sidebar component.
  */
 function Sidebar({ children, className, ...props }: SidebarProps) {
-  const classNames = clsx('protobooth-toolbar-stack', className);
+  const classNames = clsx('toolbar-stack', className);
 
   return (
     <aside id='sidebar' className={classNames} {...props}>

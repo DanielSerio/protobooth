@@ -10,7 +10,7 @@ export interface LayoutProps extends AreaHTMLAttributes<HTMLDivElement> {
  * @returns The layout component
  */
 export function Layout({ children, id, className, ...props }: LayoutProps) {
-  const classNames = clsx(['protobooth-layout', `protobooth-${id}`, className]);
+  const classNames = clsx(['layout', className]);
 
   return (
     <div className={classNames} id={id} {...props}>

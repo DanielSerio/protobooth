@@ -45,38 +45,38 @@ function AnnotationItem({ annotation, onMarkAsResolved, onMarkAsInProgress }: An
   const getPriorityClassName = () => {
     switch (annotation.priority) {
       case 'high':
-        return 'protobooth-annotation-item--high-priority';
+        return 'priority-high';
       case 'medium':
-        return 'protobooth-annotation-item--medium-priority';
+        return 'priority-medium';
       case 'low':
-        return 'protobooth-annotation-item--low-priority';
+        return 'priority-low';
       default:
         return '';
     }
   };
 
   return (
-    <div className={clsx('protobooth-annotation-item', getPriorityClassName())}>
-      <div className="protobooth-annotation-item__header">
-        <div className="protobooth-annotation-item__meta">
-          <span className="protobooth-annotation-item__route">{annotation.route}</span>
-          <span className="protobooth-annotation-item__viewport">{annotation.viewport}</span>
-          <span className={clsx('protobooth-annotation-item__priority', `protobooth-annotation-item__priority--${annotation.priority}`)}>
+    <div className={clsx('annotation-item', getPriorityClassName())}>
+      <div className="item-header">
+        <div className="meta-info">
+          <span className="route-label">{annotation.route}</span>
+          <span className="viewport-label">{annotation.viewport}</span>
+          <span className={clsx('priority-badge', `priority-${annotation.priority}`)}>
             {annotation.priority} priority
           </span>
         </div>
         <StatusBadge status={annotation.status} />
       </div>
 
-      <div className="protobooth-annotation-item__content">
+      <div className="item-content">
         <p>{annotation.content}</p>
       </div>
 
-      <div className="protobooth-annotation-item__position">
+      <div className="position-info">
         Position: x={annotation.position.x}, y={annotation.position.y}
       </div>
 
-      <div className="protobooth-annotation-item__actions">
+      <div className="actions">
         {annotation.status === 'pending' && (
           <Button
             onClick={handleMarkAsInProgress}
@@ -100,7 +100,7 @@ function AnnotationItem({ annotation, onMarkAsResolved, onMarkAsInProgress }: An
         )}
       </div>
 
-      <div className="protobooth-annotation-item__timestamp">
+      <div className="timestamp">
         {annotation.timestamp.toLocaleString()}
       </div>
     </div>
@@ -110,7 +110,7 @@ function AnnotationItem({ annotation, onMarkAsResolved, onMarkAsInProgress }: An
 export function AnnotationList({ annotations, onMarkAsResolved, onMarkAsInProgress, className, 'data-testid': testId }: AnnotationListProps) {
   if (annotations.length === 0) {
     return (
-      <div className={clsx('protobooth-annotation-list', 'protobooth-annotation-list--empty', className)} data-testid={testId}>
+      <div className={clsx('annotation-list', 'list-empty', className)} data-testid={testId}>
         <p>No annotations available.</p>
       </div>
     );
@@ -127,10 +127,10 @@ export function AnnotationList({ annotations, onMarkAsResolved, onMarkAsInProgre
   }, {} as Record<string, Annotation[]>);
 
   return (
-    <div className={clsx('protobooth-annotation-list', className)} data-testid={testId}>
+    <div className={clsx('annotation-list', className)} data-testid={testId}>
       {/* Pending annotations first */}
       {groupedAnnotations.pending && groupedAnnotations.pending.length > 0 && (
-        <div className="protobooth-annotation-group">
+        <div className="annotation-group">
           <h3>Pending ({groupedAnnotations.pending.length})</h3>
           {groupedAnnotations.pending.map(annotation => (
             <AnnotationItem
@@ -145,7 +145,7 @@ export function AnnotationList({ annotations, onMarkAsResolved, onMarkAsInProgre
 
       {/* In progress annotations */}
       {groupedAnnotations['in-progress'] && groupedAnnotations['in-progress'].length > 0 && (
-        <div className="protobooth-annotation-group">
+        <div className="annotation-group">
           <h3>In Progress ({groupedAnnotations['in-progress'].length})</h3>
           {groupedAnnotations['in-progress'].map(annotation => (
             <AnnotationItem
@@ -160,7 +160,7 @@ export function AnnotationList({ annotations, onMarkAsResolved, onMarkAsInProgre
 
       {/* Resolved annotations last */}
       {groupedAnnotations.resolved && groupedAnnotations.resolved.length > 0 && (
-        <div className="protobooth-annotation-group">
+        <div className="annotation-group">
           <h3>Resolved ({groupedAnnotations.resolved.length})</h3>
           {groupedAnnotations.resolved.map(annotation => (
             <AnnotationItem

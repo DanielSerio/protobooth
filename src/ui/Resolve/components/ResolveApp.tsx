@@ -166,7 +166,7 @@ export function ResolveApp({
   const renderWorkflowContent = () => {
     if (isStateLoading) {
       return (
-        <div className="protobooth-resolve__loading">
+        <div className="loading-state">
           <p>Loading workflow state...</p>
         </div>
       );
@@ -175,7 +175,7 @@ export function ResolveApp({
     switch (workflowState) {
       case 'in-development':
         return (
-          <div className="protobooth-resolve__development" data-testid="workflow-in-development">
+          <div className="workflow-state" data-testid="workflow-in-development">
             <h2>In Development</h2>
             <p>Ready to request client review of your prototype.</p>
 
@@ -188,11 +188,11 @@ export function ResolveApp({
               />
             )}
 
-            <div className="protobooth-resolve__actions">
+            <div className="actions">
               <Button
                 onClick={handleRequestReview}
                 disabled={isCapturing || validationErrors.length > 0}
-                className="protobooth-resolve__primary-button"
+                className="btn-primary"
                 data-testid="request-review-button"
               >
                 {isCapturing ? 'Capturing Screenshots...' : 'Request Review'}
@@ -200,7 +200,7 @@ export function ResolveApp({
             </div>
 
             {captureProgress && (
-              <div className="protobooth-resolve__progress" data-testid="capture-progress">
+              <div className="progress-info" data-testid="capture-progress">
                 <p>{captureProgress}</p>
               </div>
             )}
@@ -209,12 +209,12 @@ export function ResolveApp({
 
       case 'reviews-requested':
         return (
-          <div className="protobooth-resolve__requested" data-testid="workflow-reviews-requested">
+          <div className="workflow-state" data-testid="workflow-reviews-requested">
             <h2>Reviews Requested</h2>
             <p>Screenshots are being captured...</p>
 
             {captureProgress && (
-              <div className="protobooth-resolve__progress" data-testid="capture-progress">
+              <div className="progress-info" data-testid="capture-progress">
                 <p>{captureProgress}</p>
               </div>
             )}
@@ -232,11 +232,11 @@ export function ResolveApp({
 
       case 'in-review':
         return (
-          <div className="protobooth-resolve__review" data-testid="workflow-in-review">
+          <div className="workflow-state" data-testid="workflow-in-review">
             <h2>In Review</h2>
             <p>Waiting for client feedback on staging server.</p>
 
-            <div className="protobooth-resolve__actions">
+            <div className="actions">
               <Button
                 onClick={handleDownloadAnnotations}
                 disabled={downloadProgress !== null}
@@ -257,7 +257,7 @@ export function ResolveApp({
 
       case 'submitted-for-development':
         return (
-          <div className="protobooth-resolve__submitted" data-testid="workflow-submitted-for-development">
+          <div className="workflow-state" data-testid="workflow-submitted-for-development">
             <h2>Submitted For Development</h2>
             <p data-testid="annotations-count">{progressStats.total} annotations ready for resolution.</p>
 
@@ -266,7 +266,7 @@ export function ResolveApp({
                 value={progressStats.resolved}
                 max={progressStats.total}
                 label={`${progressStats.resolved} of ${progressStats.total} annotations resolved`}
-                className="protobooth-resolve__progress-bar"
+                className="progress-bar"
                 data-testid="resolution-progress"
               />
             )}
@@ -278,7 +278,7 @@ export function ResolveApp({
               data-testid="annotation-list"
             />
 
-            <div className="protobooth-resolve__actions">
+            <div className="actions">
               <Button
                 onClick={handleResetWorkflow}
                 data-testid="start-new-review-cycle-button"
@@ -291,7 +291,7 @@ export function ResolveApp({
 
       default:
         return (
-          <div className="protobooth-resolve__unknown">
+          <div className="workflow-state">
             <h2>Unknown State</h2>
             <p>Workflow is in an unknown state.</p>
             <Button onClick={handleResetWorkflow}>Reset Workflow</Button>
@@ -303,18 +303,18 @@ export function ResolveApp({
   const anyError = stateError || annotationsError || captureError;
 
   return (
-    <Layout id="protobooth-resolve" className="protobooth-resolve" data-testid="resolve-app">
-      <div className="protobooth-resolve__header">
+    <Layout id="protobooth-resolve" className="resolve-app" data-testid="resolve-app">
+      <div className="header">
         <h1>protobooth Development Interface</h1>
         <StatusBadge status={workflowState} data-testid="workflow-status" />
       </div>
 
-      <div className="protobooth-resolve__content">
+      <div className="content">
         {anyError && (
           <ErrorMessage
             title="Error"
             message={anyError}
-            className="protobooth-resolve__error"
+            className="error-message"
             data-testid="general-error"
           />
         )}

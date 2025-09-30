@@ -2,8 +2,24 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 import { createVitePlugin as protobooth } from 'protobooth/vite';
+import path from 'path';
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      // Map @/ imports to protobooth src directory
+      '@': path.resolve(__dirname, '..', '..', 'src')
+    }
+  },
+  server: {
+    fs: {
+      // Allow serving files from protobooth package (monorepo setup)
+      allow: [
+        path.resolve(__dirname, '..', '..', 'src'),
+        path.resolve(__dirname, '..')
+      ]
+    }
+  },
   plugins: [
     react(),
     TanStackRouterVite(),
