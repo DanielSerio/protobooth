@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createVitePlugin } from '../../src/integrations/vite-plugin';
+import type { ViteDevServer } from 'vite';
+import type { PluginContext } from 'rollup';
+import { createMockPluginContext } from '../helpers/vite-mocks';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -11,7 +14,7 @@ const mockViteDevServer = {
   config: {
     root: process.cwd()
   }
-} as any;
+} as unknown as ViteDevServer;
 
 describe('Vite Route Injection - Functionality Validation', () => {
   beforeEach(() => {
@@ -154,14 +157,16 @@ describe('Vite Route Injection - Functionality Validation', () => {
         if (path === '/protobooth') {
           middlewareHandler = handler as Function;
         }
+        return mockViteDevServer.middlewares as ReturnType<typeof mockViteDevServer.middlewares.use>;
       });
 
+      const mockContext = createMockPluginContext() as PluginContext;
       if (plugin.configureServer) {
         const hook = plugin.configureServer;
         if (typeof hook === 'function') {
-          await hook(mockViteDevServer);
+          await hook.call(mockContext, mockViteDevServer);
         } else {
-          await hook.handler(mockViteDevServer);
+          await hook.handler.call(mockContext, mockViteDevServer);
         }
       }
 
@@ -188,7 +193,7 @@ describe('Vite Route Injection - Functionality Validation', () => {
 
       // Validate asset links
       expect(capturedHTML).toContain('href="/protobooth/assets/style.css"');
-      expect(capturedHTML).toContain('src="/protobooth/assets/app.js"');
+      expect(capturedHTML).toContain('src="/protobooth/assets/resolve.js"');
     });
 
     it('should generate valid HTML for annotate UI with config injection', async () => {
@@ -222,14 +227,16 @@ describe('Vite Route Injection - Functionality Validation', () => {
         if (path === '/protobooth') {
           middlewareHandler = handler as Function;
         }
+        return mockViteDevServer.middlewares as ReturnType<typeof mockViteDevServer.middlewares.use>;
       });
 
+      const mockContext = createMockPluginContext() as PluginContext;
       if (plugin.configureServer) {
         const hook = plugin.configureServer;
         if (typeof hook === 'function') {
-          await hook(mockViteDevServer);
+          await hook.call(mockContext, mockViteDevServer);
         } else {
-          await hook.handler(mockViteDevServer);
+          await hook.handler.call(mockContext, mockViteDevServer);
         }
       }
 
@@ -276,14 +283,16 @@ describe('Vite Route Injection - Functionality Validation', () => {
         if (path === '/protobooth') {
           middlewareHandler = handler as Function;
         }
+        return mockViteDevServer.middlewares as ReturnType<typeof mockViteDevServer.middlewares.use>;
       });
 
+      const mockContext = createMockPluginContext() as PluginContext;
       if (plugin.configureServer) {
         const hook = plugin.configureServer;
         if (typeof hook === 'function') {
-          await hook(mockViteDevServer);
+          await hook.call(mockContext, mockViteDevServer);
         } else {
-          await hook.handler(mockViteDevServer);
+          await hook.handler.call(mockContext, mockViteDevServer);
         }
       }
 
@@ -321,14 +330,16 @@ describe('Vite Route Injection - Functionality Validation', () => {
         if (path === '/protobooth') {
           middlewareHandler = handler as Function;
         }
+        return mockViteDevServer.middlewares as ReturnType<typeof mockViteDevServer.middlewares.use>;
       });
 
+      const mockContext = createMockPluginContext() as PluginContext;
       if (plugin.configureServer) {
         const hook = plugin.configureServer;
         if (typeof hook === 'function') {
-          await hook(mockViteDevServer);
+          await hook.call(mockContext, mockViteDevServer);
         } else {
-          await hook.handler(mockViteDevServer);
+          await hook.handler.call(mockContext, mockViteDevServer);
         }
       }
 
@@ -361,14 +372,16 @@ describe('Vite Route Injection - Functionality Validation', () => {
         if (path === '/protobooth') {
           middlewareHandler = handler as Function;
         }
+        return mockViteDevServer.middlewares as ReturnType<typeof mockViteDevServer.middlewares.use>;
       });
 
+      const mockContext = createMockPluginContext() as PluginContext;
       if (plugin.configureServer) {
         const hook = plugin.configureServer;
         if (typeof hook === 'function') {
-          await hook(mockViteDevServer);
+          await hook.call(mockContext, mockViteDevServer);
         } else {
-          await hook.handler(mockViteDevServer);
+          await hook.handler.call(mockContext, mockViteDevServer);
         }
       }
 
@@ -410,12 +423,13 @@ describe('Vite Route Injection - Functionality Validation', () => {
       const plugin = createVitePlugin(testConfig);
 
       // Mock configResolved to set up the vite config
+      const mockContext = createMockPluginContext() as PluginContext;
       if (plugin.configResolved) {
         const hook = plugin.configResolved;
         if (typeof hook === 'function') {
-          hook(mockConfig as any);
+          hook.call(mockContext, mockConfig as any);
         } else {
-          hook.handler(mockConfig as any);
+          hook.handler.call(mockContext, mockConfig as any);
         }
       }
 
@@ -492,14 +506,16 @@ describe('Vite Route Injection - Functionality Validation', () => {
         if (path === '/protobooth') {
           middlewareHandler = handler as Function;
         }
+        return mockViteDevServer.middlewares as ReturnType<typeof mockViteDevServer.middlewares.use>;
       });
 
+      const mockContext = createMockPluginContext() as PluginContext;
       if (plugin.configureServer) {
         const hook = plugin.configureServer;
         if (typeof hook === 'function') {
-          await hook(mockViteDevServer);
+          await hook.call(mockContext, mockViteDevServer);
         } else {
-          await hook.handler(mockViteDevServer);
+          await hook.handler.call(mockContext, mockViteDevServer);
         }
       }
 

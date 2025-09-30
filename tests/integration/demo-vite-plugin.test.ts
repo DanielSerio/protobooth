@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { createVitePlugin } from '../../src/integrations/vite-plugin';
 import path from 'path';
+import type { ResolvedConfig } from 'vite';
+import type { PluginContext } from 'rollup';
+import { createMockPluginContext } from '../helpers/vite-mocks';
 
 describe('Vite Plugin Integration with Demo App', () => {
   it('should discover all routes from TanStack Router demo app', async () => {
@@ -85,12 +88,17 @@ describe('Vite Plugin Integration with Demo App', () => {
     });
 
     // Simulate Vite configuration
+    const mockContext = createMockPluginContext() as PluginContext;
+    const mockConfig: Partial<ResolvedConfig> = {
+      root: path.join(process.cwd(), 'demos', 'tanstack-router')
+    };
+
     if (plugin.configResolved) {
       const hook = plugin.configResolved;
       if (typeof hook === 'function') {
-        hook({ root: path.join(process.cwd(), 'demos', 'tanstack-router') } as any);
+        hook.call(mockContext, mockConfig as ResolvedConfig);
       } else {
-        hook.handler({ root: path.join(process.cwd(), 'demos', 'tanstack-router') } as any);
+        hook.handler.call(mockContext, mockConfig as ResolvedConfig);
       }
     }
 
@@ -98,9 +106,9 @@ describe('Vite Plugin Integration with Demo App', () => {
     if (plugin.buildStart) {
       const hook = plugin.buildStart;
       if (typeof hook === 'function') {
-        await (hook as unknown as (options: unknown) => Promise<void>)({});
+        await hook.call(mockContext, {} as Parameters<typeof hook>[0]);
       } else {
-        await (hook.handler as unknown as (options: unknown) => Promise<void>)({});
+        await hook.handler.call(mockContext, {} as Parameters<typeof hook.handler>[0]);
       }
     }
 

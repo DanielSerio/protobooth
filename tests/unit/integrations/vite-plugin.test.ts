@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createVitePlugin } from '../../../src/integrations/vite-plugin';
 import type { FixtureConfig } from '../../../src/types/fixtures';
+import type { PluginContext } from 'rollup';
+import { createMockPluginContext } from '../../helpers/vite-mocks';
 
 // Mock fs/promises before any imports that might use it
 vi.mock('fs/promises', () => ({
@@ -197,12 +199,13 @@ describe('Vite Plugin', () => {
       (fs.readdir as unknown as ReturnType<typeof vi.fn<[], Promise<Dirent<string>[]>>>).mockResolvedValue([]);
 
       // Simulate Vite build process
+      const mockContext = createMockPluginContext() as PluginContext;
       if (typeof plugin.configResolved === 'function') {
-        plugin.configResolved({ root: '/test/project' } as unknown as Parameters<typeof plugin.configResolved>[0]);
+        plugin.configResolved.call(mockContext, { root: '/test/project' } as unknown as Parameters<typeof plugin.configResolved>[0]);
       }
 
       if (typeof plugin.buildStart === 'function') {
-        await (plugin.buildStart as unknown as (options: unknown) => Promise<void>)({});
+        await (plugin.buildStart as unknown as (this: PluginContext, options: unknown) => Promise<void>).call(mockContext, {});
       }
 
       // Check that writeFile was called with routes.json

@@ -29,6 +29,7 @@
     "build:lib": "tsup",
     "build:ui": "vite build --config vite.ui.config.ts",
     "dev": "tsup --watch",
+    "dev:ui": "vite --config vite.dev.config.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
