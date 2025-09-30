@@ -61,14 +61,14 @@ export interface NextApiRequest {
   url?: string;
   method?: string;
   headers?: Record<string, string>;
-  body?: any;
+  body?: string | Record<string, unknown>;
 }
 
 export interface NextApiResponse {
   setHeader(name: string, value: string): void;
   writeHead(statusCode: number, headers?: Record<string, string>): void;
   end(data?: string): void;
-  json?(data: any): void;
+  json?(data: Record<string, unknown> | unknown[]): void;
 }
 
 // Custom type for Next.js dev server with router capabilities

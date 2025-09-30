@@ -15,9 +15,21 @@ interface CaptureResult {
   deploymentInstructions?: string[];
 }
 
+interface FixtureManager {
+  getAuthFixture(state: 'authenticated' | 'unauthenticated'): unknown;
+  getGlobalState(): Record<string, string | Record<string, boolean> | undefined> | undefined;
+}
+
+interface ScreenshotService {
+  captureRoutes: (options: ScreenshotCaptureOptions) => Promise<{
+    screenshots: Array<{ route: string; viewport: string; filePath: string; dimensions: { width: number; height: number }; timestamp: Date }>;
+    outputDirectory?: string;
+  }>;
+}
+
 interface UseScreenshotCaptureOptions {
-  fixtureManager: any;
-  screenshotService: any;
+  fixtureManager: FixtureManager;
+  screenshotService: ScreenshotService;
   fileOperations: {
     fileExists: (path: string) => Promise<boolean>;
   };

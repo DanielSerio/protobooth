@@ -5,17 +5,33 @@ import type { FixtureConfig } from '../../../src/types/fixtures';
 // Mock fs/promises before any imports that might use it
 vi.mock('fs/promises', () => ({
   default: {
-    readdir: vi.fn(),
+    readdir: vi.fn<[], Promise<Dirent<string>[]>>(),
     readFile: vi.fn(),
     writeFile: vi.fn()
   },
-  readdir: vi.fn(),
+  readdir: vi.fn<[], Promise<Dirent<string>[]>>(),
   readFile: vi.fn(),
   writeFile: vi.fn()
 }));
 
 import fs from 'fs/promises';
 import type { Dirent } from 'fs';
+
+// Helper to create properly typed Dirent mocks
+function createMockDirent(name: string, isFile: boolean): Dirent<string> {
+  return {
+    name,
+    isFile: () => isFile,
+    isDirectory: () => !isFile,
+    isBlockDevice: () => false,
+    isCharacterDevice: () => false,
+    isSymbolicLink: () => false,
+    isFIFO: () => false,
+    isSocket: () => false,
+    path: '',
+    parentPath: ''
+  };
+}
 
 describe('Vite Plugin', () => {
   beforeEach(() => {
@@ -57,7 +73,7 @@ describe('Vite Plugin', () => {
       const plugin = createVitePlugin();
 
       // Mock empty directory
-      vi.mocked(fs.readdir).mockResolvedValue([]);
+      (fs.readdir as unknown as ReturnType<typeof vi.fn<[], Promise<Dirent<string>[]>>>).mockResolvedValue([]);
 
       const routes = await plugin.discoverRoutes('/test/routes');
 
@@ -70,12 +86,8 @@ describe('Vite Plugin', () => {
       const plugin = createVitePlugin();
 
       // Mock directory with a route file
-      vi.mocked(fs.readdir).mockResolvedValue([
-        {
-          name: 'index.tsx',
-          isFile: () => true,
-          isDirectory: () => false
-        } as Dirent
+      (fs.readdir as unknown as ReturnType<typeof vi.fn<[], Promise<Dirent<string>[]>>>).mockResolvedValue([
+        createMockDirent('index.tsx', true)
       ]);
 
       // Mock file content with @tanstack/react-router route
@@ -102,12 +114,8 @@ describe('Vite Plugin', () => {
       const plugin = createVitePlugin();
 
       // Mock directory with a dynamic route file
-      vi.mocked(fs.readdir).mockResolvedValue([
-        {
-          name: 'user.$userId.tsx',
-          isFile: () => true,
-          isDirectory: () => false
-        } as Dirent
+      (fs.readdir as unknown as ReturnType<typeof vi.fn<[], Promise<Dirent<string>[]>>>).mockResolvedValue([
+        createMockDirent('user.$userId.tsx', true)
       ]);
 
       // Mock file content with dynamic route
@@ -135,29 +143,22 @@ describe('Vite Plugin', () => {
       const plugin = createVitePlugin();
 
       // Mock directory with both regular and protobooth routes
-      vi.mocked(fs.readdir).mockResolvedValue([
-        {
-          name: 'index.tsx',
-          isFile: () => true,
-          isDirectory: () => false
-        } as Dirent,
-        {
-          name: 'protobooth.resolve.tsx',
-          isFile: () => true,
-          isDirectory: () => false
-        } as Dirent
+      (fs.readdir as unknown as ReturnType<typeof vi.fn<[], Promise<Dirent<string>[]>>>).mockResolvedValue([
+        createMockDirent('index.tsx', true),
+        createMockDirent('protobooth.resolve.tsx', true)
       ]);
 
       // Mock file content for both routes
-      vi.mocked(fs.readFile).mockImplementation((path: string) => {
-        if (path.includes('index.tsx')) {
+      vi.mocked(fs.readFile).mockImplementation((path: unknown) => {
+        const pathStr = String(path);
+        if (pathStr.includes('index.tsx')) {
           return Promise.resolve(`
             import { createFileRoute } from '@tanstack/react-router'
             export const Route = createFileRoute('/')({
               component: HomeComponent,
             })
           `);
-        } else if (path.includes('protobooth.resolve.tsx')) {
+        } else if (pathStr.includes('protobooth.resolve.tsx')) {
           return Promise.resolve(`
             import { createFileRoute } from '@tanstack/react-router'
             export const Route = createFileRoute('/protobooth/resolve')({
@@ -193,15 +194,15 @@ describe('Vite Plugin', () => {
       });
 
       // Mock route discovery
-      vi.mocked(fs.readdir).mockResolvedValue([]);
+      (fs.readdir as unknown as ReturnType<typeof vi.fn<[], Promise<Dirent<string>[]>>>).mockResolvedValue([]);
 
-      // Simulate Vite build process with proper this context
+      // Simulate Vite build process
       if (typeof plugin.configResolved === 'function') {
-        plugin.configResolved({ root: '/test/project' });
+        plugin.configResolved({ root: '/test/project' } as unknown as Parameters<typeof plugin.configResolved>[0]);
       }
 
       if (typeof plugin.buildStart === 'function') {
-        await plugin.buildStart.call(plugin, {});
+        await (plugin.buildStart as unknown as (options: unknown) => Promise<void>)({});
       }
 
       // Check that writeFile was called with routes.json

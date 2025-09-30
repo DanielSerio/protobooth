@@ -125,7 +125,7 @@ describe('Screenshot Capture Integration', () => {
       }
 
       // Verify auth fixture was injected
-      expect(result.injectedFixtures.auth).toEqual(testFixtures.auth.authenticated);
+      expect(result.injectedFixtures.auth).toEqual(testFixtures.auth!.authenticated);
     });
 
     it('should capture multiple instances for dynamic routes', async () => {
@@ -364,7 +364,7 @@ describe('Screenshot Capture Integration', () => {
       });
 
       // Verify fixture injection was called
-      expect(result.injectedFixtures.auth).toEqual(testFixtures.auth.authenticated);
+      expect(result.injectedFixtures.auth).toEqual(testFixtures.auth!.authenticated);
       expect(result.fixtureInjectionLog).toContain('localStorage: auth');
 
       // Only check for globalState injection if includeGlobalState was true

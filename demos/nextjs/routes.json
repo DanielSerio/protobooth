@@ -1,40 +1,22 @@
 {
-  "routes": [
-    {
-      "path": "/blog/[slug]",
-      "isDynamic": true,
-      "parameters": [
-        "slug"
-      ],
-      "filePath": "C:\\developer\\protobooth\\demos\\nextjs\\src\\pages\\blog\\[slug].tsx"
-    },
-    {
-      "path": "/",
-      "isDynamic": false,
-      "filePath": "C:\\developer\\protobooth\\demos\\nextjs\\src\\pages\\index.tsx"
-    },
-    {
-      "path": "/user/[id]",
-      "isDynamic": true,
-      "parameters": [
-        "id"
-      ],
-      "filePath": "C:\\developer\\protobooth\\demos\\nextjs\\src\\pages\\user\\[id].tsx"
-    }
-  ],
+  "routes": [],
   "fixtures": {
     "auth": {
-      "user": {
-        "id": 1,
-        "name": "Next.js Demo User",
-        "role": "admin"
+      "authenticated": {
+        "user": {
+          "id": "1",
+          "name": "Next.js Demo User",
+          "email": "nextjs@example.com",
+          "role": "admin"
+        },
+        "token": "test-token",
+        "permissions": [
+          "read",
+          "write",
+          "admin"
+        ]
       },
-      "isAuthenticated": true,
-      "permissions": [
-        "read",
-        "write",
-        "admin"
-      ]
+      "unauthenticated": null
     },
     "dynamicRoutes": {
       "/user/[id]": [
@@ -47,50 +29,18 @@
           "id": "2",
           "name": "Bob Smith",
           "role": "admin"
-        },
-        {
-          "id": "3",
-          "name": "Carol Davis",
-          "role": "moderator"
         }
       ],
       "/blog/[slug]": [
         {
           "slug": "getting-started",
-          "title": "Getting Started with Next.js",
-          "author": "John Doe"
+          "title": "Getting Started with Next.js"
         },
         {
           "slug": "advanced-routing",
-          "title": "Advanced Routing Patterns",
-          "author": "Jane Smith"
-        }
-      ],
-      "/category/[...path]": [
-        {
-          "path": [
-            "electronics",
-            "laptops"
-          ],
-          "category": "Electronics > Laptops"
-        },
-        {
-          "path": [
-            "books",
-            "programming",
-            "javascript"
-          ],
-          "category": "Books > Programming > JavaScript"
+          "title": "Advanced Routing Patterns"
         }
       ]
-    },
-    "globalState": {
-      "theme": "dark",
-      "language": "en",
-      "featureFlags": {
-        "newLayout": true,
-        "experimentalFeatures": true
-      }
     }
   },
   "viewports": [
@@ -100,15 +50,10 @@
       "height": 667
     },
     {
-      "name": "tablet",
-      "width": 768,
-      "height": 1024
-    },
-    {
       "name": "desktop",
       "width": 1440,
       "height": 900
     }
   ],
-  "timestamp": "2025-09-29T22:45:31.197Z"
+  "timestamp": "2025-09-30T12:27:43.632Z"
 }

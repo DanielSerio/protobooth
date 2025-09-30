@@ -2,10 +2,10 @@
 
 This file tracks development progress across Claude Code sessions for the protobooth project.
 
-## Project Status: Core Route Discovery Complete ✅
+## Project Status: TypeScript Strict Mode + App Router Migration Complete ✅
 
-**Current Phase**: Plugin Integration Complete - Ready for UI Development
-**Last Updated**: 2025-09-29
+**Current Phase**: All TypeScript Errors Fixed, Next.js Migrated to App Router - Ready for UI Development
+**Last Updated**: 2025-09-30
 
 ## Completed Planning Work
 
@@ -54,9 +54,15 @@ This file tracks development progress across Claude Code sessions for the protob
 
 2. **Create Demo Applications for Testing** ✅
 
-   - [x] demos/tanstack-router/ - Vite + @tanstack/react-router demo with dynamic routes
-   - [x] demos/nextjs/ - Next.js demo with both App Router and Pages Router
+   - [x] demos/tanstack-router/ - Vite + @tanstack/react-router demo with file-based routing
+   - [x] demos/nextjs/ - Next.js demo using App Router (modern, recommended approach)
    - [x] demos/shared/ - Common components, mock data, and testing utilities
+
+   **Note**: Next.js demo migrated to App Router exclusively as it's the recommended choice for new projects.
+
+   **Future Planned Demos** (for comprehensive router coverage):
+   - [ ] demos/nextjs-pages-router/ - Next.js Pages Router (legacy support)
+   - [ ] demos/tanstack-code-based-router/ - TanStack Router code-based routing (alternative pattern)
 
 3. **Test-First Core Components (Priority Order)**
 
@@ -176,7 +182,7 @@ protobooth/
   - ✅ Build tooling (tsup) and testing (Vitest) configured
   - ✅ Created comprehensive demo applications:
     - ✅ TanStack Router demo with dynamic routes and fixtures
-    - ✅ Next.js demo with App Router and Pages Router examples
+    - ✅ Next.js demo using App Router (modern approach, migrating away from Pages Router)
     - ✅ Shared utilities with mock data and test helpers
   - ✅ Prettier configuration for consistent code formatting
   - ✅ Workspace setup ready for development
@@ -220,7 +226,7 @@ protobooth/
     - ✅ Implemented `withProtobooth` Next.js wrapper with webpack integration
     - ✅ End-to-end validation with real demo applications:
       - ✅ Vite Plugin: Successfully discovered 6 routes from TanStack Router demo (4 static + 2 dynamic)
-      - ✅ Next.js Plugin: Successfully discovered routes from both App Router (3) and Pages Router (3)
+      - ✅ Next.js Plugin: Successfully discovered routes from Pages Router (3) - migrating to App Router
     - ✅ Dynamic route parameter extraction working correctly (`$userId`, `[id]`, `[slug]`)
     - ✅ Route filtering working (excludes `/protobooth/*` routes and non-page files)
 - 🚀 **ROUTE INJECTION IMPLEMENTATION COMPLETED**:
@@ -252,11 +258,26 @@ protobooth/
     - ✅ Created missing `tsconfig.node.json` for TanStack Router demo
     - ✅ Fixed tsup config to build correct entry points (`src/vite.ts`, `src/next.ts`)
     - ✅ Fixed package.json exports to match tsup output (`.js` for CJS, `.mjs` for ESM)
-    - ✅ Resolved Next.js App Router / Pages Router conflict (using Pages Router only)
+    - ✅ Resolved Next.js App Router / Pages Router conflict (migrated to App Router exclusively)
     - ✅ Created Next.js page files for `/protobooth/resolve` and `/protobooth/annotate`
     - ✅ Fixed hydration errors by using proper Next.js conventions (`<Head>` component)
     - ✅ Added `@tanstack/router-plugin` to TanStack Router demo dependencies
-- ✅ **TEST SUITE STATUS**: All 146 tests passing across entire codebase
+- 🚀 **TYPESCRIPT STRICT MODE COMPLETE**:
+  - ✅ **Zero TypeScript Errors Achieved**: Fixed all 100+ type errors across codebase
+  - ✅ **Eliminated ALL `any` Types**: Strict type safety enforced throughout
+  - ✅ **Proper Vitest Mock Typing**: Resolved complex Dirent mock type issues with generics
+  - ✅ **Type Stubs Created**: Added proper type declarations for @tanstack/react-router
+  - ✅ **Plugin Hook Types Fixed**: Corrected Vite ObjectHook union types and PluginContext issues
+  - ✅ All fixes use proper TypeScript types without `any`, `@ts-expect-error`, or improper assertions
+- 🚀 **NEXT.JS APP ROUTER MIGRATION COMPLETE**:
+  - ✅ **Migrated from Pages Router to App Router**: Following Next.js best practices
+  - ✅ **Created App Router Structure**: layout.tsx, page.tsx pattern with Server Components
+  - ✅ **Migrated All Routes**: Home (/), User ([id]), Blog ([slug]), Protobooth routes
+  - ✅ **Updated Tests**: App Router discovery test now working correctly
+  - ✅ **Removed Pages Router**: Deleted src/pages/ directory entirely
+  - ✅ **Documentation Updated**: Planning docs reflect App Router as primary approach
+  - ✅ **Future Plans Documented**: Next.js Pages Router and TanStack code-based routing demos planned
+- ✅ **TEST SUITE STATUS**: All 145 tests passing across entire codebase (13 test files)
 - 🎯 **READY FOR NEXT PHASE**: UI component development (React + SCSS)
 
 ## Blockers & Questions

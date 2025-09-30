@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createVitePlugin } from '../../src/integrations/vite-plugin';
-import type { ViteDevServer, Plugin } from 'vite';
+import type { ViteDevServer } from 'vite';
 
 // Mock vite dev server
 const mockViteDevServer = {
@@ -28,17 +28,25 @@ describe('Vite Route Injection', () => {
         dev: true, // Enable development mode
         fixtures: {
           auth: {
-            user: { id: 1, name: 'Test User' },
-            isAuthenticated: true
+            authenticated: {
+              user: { id: '1', name: 'Test User', email: 'test@example.com' },
+              token: 'test-token'
+            },
+            unauthenticated: null
           }
         }
       });
 
       // Simulate Vite's configureServer hook
-      expect(typeof plugin.configureServer).toBe('function');
+      expect(plugin.configureServer).toBeDefined();
 
       if (plugin.configureServer) {
-        await plugin.configureServer(mockViteDevServer);
+        const hook = plugin.configureServer;
+        if (typeof hook === 'function') {
+          await hook(mockViteDevServer);
+        } else {
+          await hook.handler(mockViteDevServer);
+        }
       }
 
       // Should register middleware for protobooth routes
@@ -54,8 +62,11 @@ describe('Vite Route Injection', () => {
         dev: true,
         fixtures: {
           auth: {
-            user: { id: 1, name: 'Test User' },
-            isAuthenticated: true
+            authenticated: {
+              user: { id: '1', name: 'Test User', email: 'test@example.com' },
+              token: 'test-token'
+            },
+            unauthenticated: null
           }
         }
       });
@@ -67,10 +78,16 @@ describe('Vite Route Injection', () => {
         if (path === '/protobooth') {
           middlewareHandler = handler as Function;
         }
+        return mockViteDevServer.middlewares as unknown as ReturnType<typeof mockViteDevServer.middlewares.use>;
       });
 
       if (plugin.configureServer) {
-        await plugin.configureServer(mockViteDevServer);
+        const hook = plugin.configureServer;
+        if (typeof hook === 'function') {
+          await hook(mockViteDevServer);
+        } else {
+          await hook.handler(mockViteDevServer);
+        }
       }
 
       expect(middlewareHandler).toBeDefined();
@@ -103,8 +120,11 @@ describe('Vite Route Injection', () => {
         dev: true,
         fixtures: {
           auth: {
-            user: { id: 1, name: 'Test User' },
-            isAuthenticated: true
+            authenticated: {
+              user: { id: '1', name: 'Test User', email: 'test@example.com' },
+              token: 'test-token'
+            },
+            unauthenticated: null
           }
         }
       });
@@ -115,10 +135,16 @@ describe('Vite Route Injection', () => {
         if (path === '/protobooth') {
           middlewareHandler = handler as Function;
         }
+        return mockViteDevServer.middlewares as unknown as ReturnType<typeof mockViteDevServer.middlewares.use>;
       });
 
       if (plugin.configureServer) {
-        await plugin.configureServer(mockViteDevServer);
+        const hook = plugin.configureServer;
+        if (typeof hook === 'function') {
+          await hook(mockViteDevServer);
+        } else {
+          await hook.handler(mockViteDevServer);
+        }
       }
 
       const mockReq = {
@@ -152,10 +178,16 @@ describe('Vite Route Injection', () => {
         if (path === '/protobooth') {
           middlewareHandler = handler as Function;
         }
+        return mockViteDevServer.middlewares as unknown as ReturnType<typeof mockViteDevServer.middlewares.use>;
       });
 
       if (plugin.configureServer) {
-        await plugin.configureServer(mockViteDevServer);
+        const hook = plugin.configureServer;
+        if (typeof hook === 'function') {
+          await hook(mockViteDevServer);
+        } else {
+          await hook.handler(mockViteDevServer);
+        }
       }
 
       const mockReq = {
@@ -188,10 +220,16 @@ describe('Vite Route Injection', () => {
         if (path === '/protobooth') {
           middlewareHandler = handler as Function;
         }
+        return mockViteDevServer.middlewares as unknown as ReturnType<typeof mockViteDevServer.middlewares.use>;
       });
 
       if (plugin.configureServer) {
-        await plugin.configureServer(mockViteDevServer);
+        const hook = plugin.configureServer;
+        if (typeof hook === 'function') {
+          await hook(mockViteDevServer);
+        } else {
+          await hook.handler(mockViteDevServer);
+        }
       }
 
       const mockReq = {
@@ -219,8 +257,11 @@ describe('Vite Route Injection', () => {
       const testConfig = {
         fixtures: {
           auth: {
-            user: { id: 1, name: 'Test User', role: 'admin' },
-            isAuthenticated: true
+            authenticated: {
+              user: { id: '1', name: 'Test User', email: 'test@example.com', role: 'admin' },
+              token: 'test-token'
+            },
+            unauthenticated: null
           }
         },
         viewports: [
@@ -237,10 +278,16 @@ describe('Vite Route Injection', () => {
         if (path === '/protobooth') {
           middlewareHandler = handler as Function;
         }
+        return mockViteDevServer.middlewares as unknown as ReturnType<typeof mockViteDevServer.middlewares.use>;
       });
 
       if (plugin.configureServer) {
-        await plugin.configureServer(mockViteDevServer);
+        const hook = plugin.configureServer;
+        if (typeof hook === 'function') {
+          await hook(mockViteDevServer);
+        } else {
+          await hook.handler(mockViteDevServer);
+        }
       }
 
       const mockReq = {
@@ -287,10 +334,16 @@ describe('Vite Route Injection', () => {
         if (path === '/protobooth') {
           middlewareHandler = handler as Function;
         }
+        return mockViteDevServer.middlewares as unknown as ReturnType<typeof mockViteDevServer.middlewares.use>;
       });
 
       if (plugin.configureServer) {
-        await plugin.configureServer(mockViteDevServer);
+        const hook = plugin.configureServer;
+        if (typeof hook === 'function') {
+          await hook(mockViteDevServer);
+        } else {
+          await hook.handler(mockViteDevServer);
+        }
       }
 
       const mockReq = {

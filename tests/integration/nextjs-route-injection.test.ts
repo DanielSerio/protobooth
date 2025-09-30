@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { withProtobooth } from '../../src/next';
-import type { NextConfig } from 'next';
+import { withProtobooth, type NextConfig } from '../../src/next';
 
 // Mock Next.js types and webpack
 const createMockWebpackConfig = () => ({
@@ -38,8 +37,11 @@ describe('Next.js Route Injection', () => {
           enabled: true,
           fixtures: {
             auth: {
-              user: { id: 1, name: 'Test User' },
-              isAuthenticated: true
+              authenticated: {
+                user: { id: '1', name: 'Test User', email: 'test@example.com' },
+                token: 'test-token'
+              },
+              unauthenticated: null
             }
           }
         }
@@ -55,10 +57,10 @@ describe('Next.js Route Injection', () => {
 
         // Should add protobooth plugin to webpack
         expect(resultConfig.plugins).toBeDefined();
-        expect(resultConfig.plugins.length).toBeGreaterThan(0);
+        expect(resultConfig.plugins!.length).toBeGreaterThan(0);
 
         // Should register afterCompile hook
-        const plugin = resultConfig.plugins[0];
+        const plugin = resultConfig.plugins![0] as any;
         expect(plugin).toBeDefined();
         expect(typeof plugin.apply).toBe('function');
 
@@ -78,8 +80,11 @@ describe('Next.js Route Injection', () => {
           enabled: true,
           fixtures: {
             auth: {
-              user: { id: 1, name: 'Test User' },
-              isAuthenticated: true
+              authenticated: {
+                user: { id: '1', name: 'Test User', email: 'test@example.com' },
+                token: 'test-token'
+              },
+              unauthenticated: null
             }
           }
         }
@@ -89,11 +94,11 @@ describe('Next.js Route Injection', () => {
 
       if (modifiedConfig.webpack) {
         const resultConfig = modifiedConfig.webpack(createMockWebpackConfig(), mockWebpackOptions);
-        const plugin = resultConfig.plugins[0];
+        const plugin = resultConfig.plugins![0] as any;
 
         let compilationCallback: Function | undefined;
 
-        vi.mocked(mockCompiler.hooks.afterCompile.tapAsync).mockImplementation((name, callback) => {
+        vi.mocked(mockCompiler.hooks.afterCompile.tapAsync).mockImplementation((_name, callback) => {
           compilationCallback = callback;
         });
 
@@ -132,7 +137,7 @@ describe('Next.js Route Injection', () => {
         });
 
         // Should not add protobooth plugin in production
-        expect(resultConfig.plugins.length).toBe(0);
+        expect(resultConfig.plugins!.length).toBe(0);
       }
     });
 
@@ -154,7 +159,7 @@ describe('Next.js Route Injection', () => {
         });
 
         // Should not add protobooth plugin for server builds
-        expect(resultConfig.plugins.length).toBe(0);
+        expect(resultConfig.plugins!.length).toBe(0);
       }
     });
 
@@ -185,7 +190,7 @@ describe('Next.js Route Injection', () => {
 
         // Should preserve existing config and add protobooth plugin
         expect(resultConfig.resolve).toEqual({ alias: { '@': './src' } });
-        expect(resultConfig.plugins.length).toBeGreaterThan(0);
+        expect(resultConfig.plugins!.length).toBeGreaterThan(0);
       }
     });
   });
@@ -199,8 +204,11 @@ describe('Next.js Route Injection', () => {
           enabled: true,
           fixtures: {
             auth: {
-              user: { id: 1, name: 'Test User' },
-              isAuthenticated: true
+              authenticated: {
+                user: { id: '1', name: 'Test User', email: 'test@example.com' },
+                token: 'test-token'
+              },
+              unauthenticated: null
             }
           }
         }
@@ -210,11 +218,11 @@ describe('Next.js Route Injection', () => {
 
       if (modifiedConfig.webpack) {
         const resultConfig = modifiedConfig.webpack(createMockWebpackConfig(), mockWebpackOptions);
-        const plugin = resultConfig.plugins[0];
+        const plugin = resultConfig.plugins![0] as any;
 
         let compilationCallback: Function | undefined;
 
-        vi.mocked(mockCompiler.hooks.afterCompile.tapAsync).mockImplementation((name, callback) => {
+        vi.mocked(mockCompiler.hooks.afterCompile.tapAsync).mockImplementation((_name, callback) => {
           compilationCallback = callback;
         });
 
@@ -245,8 +253,11 @@ describe('Next.js Route Injection', () => {
           enabled: true,
           fixtures: {
             auth: {
-              user: { id: 1, name: 'Test User' },
-              isAuthenticated: true
+              authenticated: {
+                user: { id: '1', name: 'Test User', email: 'test@example.com' },
+                token: 'test-token'
+              },
+              unauthenticated: null
             }
           }
         }
@@ -256,11 +267,11 @@ describe('Next.js Route Injection', () => {
 
       if (modifiedConfig.webpack) {
         const resultConfig = modifiedConfig.webpack(createMockWebpackConfig(), mockWebpackOptions);
-        const plugin = resultConfig.plugins[0];
+        const plugin = resultConfig.plugins![0] as any;
 
         let compilationCallback: Function | undefined;
 
-        vi.mocked(mockCompiler.hooks.afterCompile.tapAsync).mockImplementation((name, callback) => {
+        vi.mocked(mockCompiler.hooks.afterCompile.tapAsync).mockImplementation((_name, callback) => {
           compilationCallback = callback;
         });
 
@@ -291,11 +302,11 @@ describe('Next.js Route Injection', () => {
 
       if (modifiedConfig.webpack) {
         const resultConfig = modifiedConfig.webpack(createMockWebpackConfig(), mockWebpackOptions);
-        const plugin = resultConfig.plugins[0];
+        const plugin = resultConfig.plugins![0] as any;
 
         let compilationCallback: Function | undefined;
 
-        vi.mocked(mockCompiler.hooks.afterCompile.tapAsync).mockImplementation((name, callback) => {
+        vi.mocked(mockCompiler.hooks.afterCompile.tapAsync).mockImplementation((_name, callback) => {
           compilationCallback = callback;
         });
 
@@ -323,8 +334,11 @@ describe('Next.js Route Injection', () => {
           enabled: true,
           fixtures: {
             auth: {
-              user: { id: 1, name: 'Test User' },
-              isAuthenticated: true
+              authenticated: {
+                user: { id: '1', name: 'Test User', email: 'test@example.com' },
+                token: 'test-token'
+              },
+              unauthenticated: null
             }
           }
         }
@@ -334,8 +348,8 @@ describe('Next.js Route Injection', () => {
 
       // Should provide middleware export for custom servers
       expect(modifiedConfig.protobooth).toBeDefined();
-      expect(modifiedConfig.protobooth.middleware).toBeDefined();
-      expect(typeof modifiedConfig.protobooth.middleware).toBe('function');
+      expect((modifiedConfig.protobooth as any).middleware).toBeDefined();
+      expect(typeof (modifiedConfig.protobooth as any).middleware).toBe('function');
     });
 
     it('should handle protobooth routes in custom server middleware', async () => {
@@ -346,15 +360,18 @@ describe('Next.js Route Injection', () => {
           enabled: true,
           fixtures: {
             auth: {
-              user: { id: 1, name: 'Test User' },
-              isAuthenticated: true
+              authenticated: {
+                user: { id: '1', name: 'Test User', email: 'test@example.com' },
+                token: 'test-token'
+              },
+              unauthenticated: null
             }
           }
         }
       };
 
       const modifiedConfig = withProtobooth(nextConfig, protoboothConfig);
-      const middleware = modifiedConfig.protobooth.middleware;
+      const middleware = (modifiedConfig.protobooth as any).middleware;
 
       const mockReq = {
         url: '/protobooth/resolve',
@@ -385,7 +402,7 @@ describe('Next.js Route Injection', () => {
       };
 
       const modifiedConfig = withProtobooth(nextConfig, protoboothConfig);
-      const middleware = modifiedConfig.protobooth.middleware;
+      const middleware = (modifiedConfig.protobooth as any).middleware;
 
       const mockReq = {
         url: '/api/users',
@@ -423,8 +440,11 @@ describe('Next.js Route Injection', () => {
           enabled: true,
           fixtures: {
             auth: {
-              user: { id: 1, name: 'Test User' },
-              isAuthenticated: true
+              authenticated: {
+                user: { id: '1', name: 'Test User', email: 'test@example.com' },
+                token: 'test-token'
+              },
+              unauthenticated: null
             }
           }
         }

@@ -42,7 +42,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Route Detection
 - Automatically discovers all application routes from router configuration
 - **Vite**: Parses `@tanstack/react-router` file-based route structure
-- **Next.js**: Extracts routes from pages/ or app/ directory structure
+- **Next.js**: Extracts routes from app/ directory structure (App Router - modern, recommended)
+  - Legacy pages/ directory support maintained for backward compatibility
 - Excludes `/protobooth/*` routes automatically
 - Screenshots triggered only during "Reviews Requested" phase
 
@@ -314,9 +315,15 @@ protobooth/
 4. **Simplicity in Testing**: Avoid complex test frameworks, use simple assertions
 
 ### Demo Applications for Testing
-- **demos/tanstack-router/**: Vite + @tanstack/react-router demo app
-- **demos/nextjs/**: Next.js demo app with pages and app router examples
+- **demos/tanstack-router/**: Vite + @tanstack/react-router demo app (file-based routing)
+- **demos/nextjs/**: Next.js demo app using App Router (recommended modern approach)
 - **demos/shared/**: Common components and utilities for testing
+
+**Note**: The Next.js demo uses the App Router exclusively, which is the recommended choice for new Next.js projects due to its modern features, performance benefits, and alignment with the future direction of the framework.
+
+**Future Demo Applications** (Planned for comprehensive router coverage):
+- **demos/nextjs-pages-router/**: Next.js demo using Pages Router (legacy support for existing projects)
+- **demos/tanstack-code-based-router/**: TanStack Router demo using code-based routing (alternative to file-based)
 
 ### TDD Implementation Order
 1. **Write failing tests** for route discovery → **Implement** → **Refactor**

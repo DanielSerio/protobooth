@@ -1,4 +1,6 @@
 // Screenshot capture types
+import type { AuthFixture, GlobalStateFixture } from './fixtures';
+
 export interface ViewportConfig {
   name: string;
   width: number;
@@ -24,8 +26,8 @@ export interface CaptureRequest {
 export interface CaptureResult {
   screenshots: ScreenshotResult[];
   injectedFixtures: {
-    auth: any;
-    globalState?: any;
+    auth: AuthFixture | null;
+    globalState?: GlobalStateFixture;
   };
   fixtureInjectionLog: string[];
   totalRoutes: number;

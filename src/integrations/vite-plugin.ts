@@ -63,20 +63,27 @@ export function createVitePlugin(options: VitePluginOptions = {}): Plugin & {
     }
   }
 
+  // Handler response interface
+  interface ViteHandlerResponse {
+    setHeader(name: string, value: string): void;
+    writeHead(statusCode: number): void;
+    end(data?: string): void;
+  }
+
   // Route handlers
-  function handleResolveRoute(_req: any, res: any, config: { fixtures: FixtureConfig; viewports: ViewportConfig[] }): void {
+  function handleResolveRoute(_req: unknown, res: ViteHandlerResponse, config: { fixtures: FixtureConfig; viewports: ViewportConfig[] }): void {
     const html = generateUIHtml('resolve', config);
     res.setHeader('Content-Type', 'text/html');
     res.end(html);
   }
 
-  function handleAnnotateRoute(_req: any, res: any, config: { fixtures: FixtureConfig; viewports: ViewportConfig[] }): void {
+  function handleAnnotateRoute(_req: unknown, res: ViteHandlerResponse, config: { fixtures: FixtureConfig; viewports: ViewportConfig[] }): void {
     const html = generateUIHtml('annotate', config);
     res.setHeader('Content-Type', 'text/html');
     res.end(html);
   }
 
-  function handleStaticAssets(_req: any, res: any, url: string): void {
+  function handleStaticAssets(_req: unknown, res: ViteHandlerResponse, url: string): void {
     if (url.endsWith('.css')) {
       res.setHeader('Content-Type', 'text/css');
       res.end('/* Protobooth styles placeholder */');

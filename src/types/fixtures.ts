@@ -4,25 +4,26 @@ export interface UserData {
   id: string;
   name: string;
   email: string;
-  [key: string]: any;
+  role?: string;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface AuthFixture {
   user: UserData;
   token: string;
   permissions?: string[];
-  [key: string]: any;
+  [key: string]: string | string[] | UserData | undefined;
 }
 
 export interface DynamicRouteFixture {
-  [key: string]: any;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface GlobalStateFixture {
   theme?: string;
   language?: string;
   featureFlags?: Record<string, boolean>;
-  [key: string]: any;
+  [key: string]: string | Record<string, boolean> | undefined;
 }
 
 export interface FixtureConfig {
@@ -45,7 +46,7 @@ export interface DiscoveredRouteWithFixtures {
 export interface RouteFixture {
   route: string;
   name: string;
-  data?: Record<string, any>;
+  data?: Record<string, string | number | boolean>;
 }
 
 export interface DiscoveredRoute {
@@ -56,6 +57,6 @@ export interface DiscoveredRoute {
 
 export interface ProcessedRoute {
   route: string;
-  fixtureData?: Record<string, any>;
+  fixtureData?: Record<string, string | number | boolean>;
   screenshotPath: string;
 }

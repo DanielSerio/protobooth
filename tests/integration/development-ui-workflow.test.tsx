@@ -1,5 +1,4 @@
 // RED: Write failing integration tests for development UI workflow
-import React from 'react';
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -8,7 +7,7 @@ import { ResolveApp } from '@/ui/Resolve/components/ResolveApp';
 import { FixtureManager } from '@/core/fixture-manager';
 import { ScreenshotCaptureService } from '@/screenshot/screenshot-capture-service';
 import type { FixtureConfig } from '@/types/fixtures';
-import type { Annotation, AnnotationSession, DownloadBundle } from '@/types/annotations';
+import type { Annotation } from '@/types/annotations';
 import type { ViewportConfig } from '@/types/screenshot';
 
 describe('Development UI Workflow Integration', () => {
@@ -205,7 +204,7 @@ describe('Development UI Workflow Integration', () => {
 
       // Should capture screenshots for static and dynamic routes
       expect(result.screenshots).toHaveLength(6); // 1 static + 2 dynamic instances × 2 viewports
-      expect(result.injectedFixtures.auth).toEqual(testFixtures.auth.authenticated);
+      expect(result.injectedFixtures.auth).toEqual(testFixtures.auth!.authenticated);
     });
 
     it('should transition to "In Review" after screenshots are deployed', async () => {
@@ -465,12 +464,6 @@ describe('Development UI Workflow Integration', () => {
 
   describe('State Persistence', () => {
     it('should persist workflow state across dev server restarts', async () => {
-      const stateData = {
-        state: 'reviews-requested',
-        timestamp: new Date().toISOString(),
-        lastScreenshotPath: '/temp/screenshots'
-      };
-
       mockFileOps.writeFile.mockResolvedValue(undefined);
 
       renderResolveApp();

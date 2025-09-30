@@ -7,9 +7,12 @@ describe('Vite Plugin Integration with Demo App', () => {
     const plugin = createVitePlugin({
       fixtures: {
         auth: {
-          user: { id: 1, name: 'Demo User', role: 'admin' },
-          isAuthenticated: true,
-          permissions: ['read', 'write', 'admin']
+          authenticated: {
+            user: { id: '1', name: 'Demo User', email: 'demo@example.com', role: 'admin' },
+            token: 'test-token',
+            permissions: ['read', 'write', 'admin']
+          },
+          unauthenticated: null
         }
       },
       viewports: [
@@ -57,9 +60,12 @@ describe('Vite Plugin Integration with Demo App', () => {
     const plugin = createVitePlugin({
       fixtures: {
         auth: {
-          user: { id: 1, name: 'Demo User', role: 'admin' },
-          isAuthenticated: true,
-          permissions: ['read', 'write', 'admin']
+          authenticated: {
+            user: { id: '1', name: 'Demo User', email: 'demo@example.com', role: 'admin' },
+            token: 'test-token',
+            permissions: ['read', 'write', 'admin']
+          },
+          unauthenticated: null
         },
         dynamicRoutes: {
           '/user/$userId': [
@@ -79,10 +85,24 @@ describe('Vite Plugin Integration with Demo App', () => {
     });
 
     // Simulate Vite configuration
-    plugin.configResolved({ root: path.join(process.cwd(), 'demos', 'tanstack-router') } as any);
+    if (plugin.configResolved) {
+      const hook = plugin.configResolved;
+      if (typeof hook === 'function') {
+        hook({ root: path.join(process.cwd(), 'demos', 'tanstack-router') } as any);
+      } else {
+        hook.handler({ root: path.join(process.cwd(), 'demos', 'tanstack-router') } as any);
+      }
+    }
 
     // Test buildStart (which should generate routes.json)
-    await plugin.buildStart.call(plugin, {} as any);
+    if (plugin.buildStart) {
+      const hook = plugin.buildStart;
+      if (typeof hook === 'function') {
+        await (hook as unknown as (options: unknown) => Promise<void>)({});
+      } else {
+        await (hook.handler as unknown as (options: unknown) => Promise<void>)({});
+      }
+    }
 
     // The actual file generation is tested via mocks in unit tests
     // Here we're verifying the integration works without errors

@@ -10,7 +10,7 @@ export interface FileOperations {
 
 // Validation interface (Single Responsibility Principle)
 export interface ConfigValidator {
-  validate(config: any): { success: boolean; error?: string };
+  validate(config: unknown): { success: boolean; error?: string };
 }
 
 // Route instance generator interface (Single Responsibility Principle)
@@ -35,7 +35,7 @@ export class ZodConfigValidator implements ConfigValidator {
       permissions: z.array(z.string()).optional()
     }).passthrough();
 
-    const DynamicRouteFixtureSchema = z.record(z.any());
+    const DynamicRouteFixtureSchema = z.record(z.union([z.string(), z.number(), z.boolean()]));
 
     this.schema = z.object({
       auth: z.object({
@@ -51,7 +51,7 @@ export class ZodConfigValidator implements ConfigValidator {
     });
   }
 
-  validate(config: any): { success: boolean; error?: string } {
+  validate(config: unknown): { success: boolean; error?: string } {
     try {
       this.schema.parse(config);
       return { success: true };
@@ -87,7 +87,7 @@ export class DefaultRouteInstanceGenerator implements RouteInstanceGenerator {
       if (catchAllMatch) {
         const paramName = catchAllMatch[1];
         const value = fixture[paramName];
-        instance = instance.replace(`[...${paramName}]`, value);
+        instance = instance.replace(`[...${paramName}]`, String(value));
         return instance;
       }
 
@@ -98,7 +98,7 @@ export class DefaultRouteInstanceGenerator implements RouteInstanceGenerator {
           const paramName = match.slice(1, -1); // Remove [ and ]
           const value = fixture[paramName];
           if (value !== undefined) {
-            instance = instance.replace(match, value);
+            instance = instance.replace(match, String(value));
           }
         });
       }
@@ -172,7 +172,7 @@ export class FixtureManager {
     return this.config.dynamicRoutes?.[routePattern] || [];
   }
 
-  getGlobalState(): Record<string, any> | undefined {
+  getGlobalState(): Record<string, string | Record<string, boolean> | undefined> | undefined {
     return this.config?.globalState;
   }
 
@@ -181,7 +181,7 @@ export class FixtureManager {
     return this.routeGenerator.generate(routePattern, fixtures);
   }
 
-  validateFixtureConfig(config: any): { success: boolean; error?: string } {
+  validateFixtureConfig(config: unknown): { success: boolean; error?: string } {
     return this.validator.validate(config);
   }
 

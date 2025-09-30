@@ -1,28 +1,31 @@
-import { GetServerSideProps } from 'next';
-
-interface UserProps {
-  user: {
+interface UserPageProps {
+  params: {
     id: string;
-    name: string;
-    role: string;
-    email: string;
-    joined: string;
-  } | null;
+  };
 }
 
-export default function UserPagesPagesRouter({ user }: UserProps) {
+// Mock user data matching our fixtures
+const userData = {
+  '1': { id: '1', name: 'Alice Johnson', role: 'user', email: 'alice@example.com', joined: '2023-01-15' },
+  '2': { id: '2', name: 'Bob Smith', role: 'admin', email: 'bob@example.com', joined: '2022-08-20' },
+  '3': { id: '3', name: 'Carol Davis', role: 'moderator', email: 'carol@example.com', joined: '2023-03-10' }
+};
+
+export default function UserPage({ params }: UserPageProps) {
+  const user = userData[params.id as keyof typeof userData];
+
   if (!user) {
     return (
       <div style={{ padding: '20px' }}>
-        <h1>User Not Found (Pages Router)</h1>
-        <p>User could not be found.</p>
+        <h1>User Not Found</h1>
+        <p>User with ID {params.id} could not be found.</p>
       </div>
     );
   }
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>User Profile (Pages Router)</h1>
+      <h1>User Profile (App Router)</h1>
       <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px', marginTop: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div style={{
@@ -56,26 +59,9 @@ export default function UserPagesPagesRouter({ user }: UserProps) {
         <div style={{ marginTop: '20px' }}>
           <p><strong>Email:</strong> {user.email}</p>
           <p><strong>Joined:</strong> {user.joined}</p>
-          <p><strong>Router:</strong> Pages Router (getServerSideProps)</p>
+          <p><strong>Router:</strong> App Router (Server Component)</p>
         </div>
       </div>
     </div>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  // Mock user data matching our fixtures
-  const userData = {
-    '1': { id: '1', name: 'Alice Johnson', role: 'user', email: 'alice@example.com', joined: '2023-01-15' },
-    '2': { id: '2', name: 'Bob Smith', role: 'admin', email: 'bob@example.com', joined: '2022-08-20' },
-    '3': { id: '3', name: 'Carol Davis', role: 'moderator', email: 'carol@example.com', joined: '2023-03-10' }
-  };
-
-  const user = userData[params?.id as keyof typeof userData] || null;
-
-  return {
-    props: {
-      user
-    }
-  };
-};

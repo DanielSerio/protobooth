@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react';
-import { clsx } from 'clsx';
+import React from 'react';
 import { Layout, Button, StatusBadge, ProgressBar } from '@/ui/Core/components';
 import { useWorkflowState, useAnnotations, useScreenshotCapture } from '../hooks';
 import { AnnotationList } from './AnnotationList';
 import { DeploymentInstructions } from './DeploymentInstructions';
 import { ErrorMessage } from './ErrorMessage';
 import '../../styles/resolve-ui/index.scss';
+import type { CaptureResult } from '@/types/screenshot';
 
 interface FileOperations {
   readFile: (path: string) => Promise<string>;
@@ -13,14 +13,26 @@ interface FileOperations {
   fileExists: (path: string) => Promise<boolean>;
 }
 
+interface CaptureOptions {
+  appUrl: string;
+  projectPath: string;
+  routerType: 'vite' | 'nextjs';
+  authState: 'authenticated' | 'unauthenticated';
+}
+
 interface ScreenshotService {
-  captureRoutes: (options: any) => Promise<any>;
+  captureRoutes: (options: CaptureOptions) => Promise<CaptureResult>;
+}
+
+interface FixtureManager {
+  getAuthFixture(state: 'authenticated' | 'unauthenticated'): unknown;
+  getGlobalState(): Record<string, string | Record<string, boolean> | undefined> | undefined;
 }
 
 interface ResolveAppProps {
   fileOperations?: FileOperations;
   screenshotService?: ScreenshotService;
-  fixtureManager?: any;
+  fixtureManager?: FixtureManager;
 }
 
 // Default implementations for production use
@@ -45,11 +57,13 @@ const defaultFileOps: FileOperations = {
 const defaultScreenshotService: ScreenshotService = {
   captureRoutes: async () => ({
     screenshots: [
-      { route: '/', viewport: 'desktop', filePath: '/temp/home-desktop.png' },
-      { route: '/', viewport: 'mobile', filePath: '/temp/home-mobile.png' }
+      { route: '/', viewport: 'desktop', filePath: '/temp/home-desktop.png', dimensions: { width: 1920, height: 1080 }, timestamp: new Date() },
+      { route: '/', viewport: 'mobile', filePath: '/temp/home-mobile.png', dimensions: { width: 375, height: 667 }, timestamp: new Date() }
     ],
-    injectedFixtures: { auth: { user: { id: '123' } } },
-    outputDirectory: '/temp/screenshots'
+    injectedFixtures: { auth: null },
+    fixtureInjectionLog: [],
+    totalRoutes: 1,
+    totalScreenshots: 2
   })
 };
 
@@ -59,7 +73,10 @@ const defaultScreenshotService: ScreenshotService = {
 export function ResolveApp({
   fileOperations = defaultFileOps,
   screenshotService = defaultScreenshotService,
-  fixtureManager = {}
+  fixtureManager = {
+    getAuthFixture: () => null,
+    getGlobalState: () => undefined
+  }
 }: ResolveAppProps = {}) {
   const {
     workflowState,
@@ -71,7 +88,6 @@ export function ResolveApp({
 
   const {
     annotations,
-    isLoading: isAnnotationsLoading,
     error: annotationsError,
     progressStats,
     markAsResolved,
