@@ -1,6 +1,7 @@
 import { Browser } from 'playwright';
 import path from 'path';
 import type { FixtureManager } from '@/core/fixture-manager';
+import type { FileOperations } from '@/types/file-operations';
 import type {
   ViewportConfig,
   ScreenshotResult,
@@ -12,15 +13,6 @@ import type {
   GlobalStateFixture,
   DiscoveredRouteWithFixtures
 } from '@/types/fixtures';
-
-// File operations interface (Dependency Inversion Principle)
-export interface FileOperations {
-  readFile(path: string): Promise<string>;
-  writeFile(path: string, content: string): Promise<void>;
-  fileExists(path: string): Promise<boolean>;
-  ensureDir(path: string): Promise<void>;
-  remove(path: string): Promise<void>;
-}
 
 // Route discovery interface (Single Responsibility Principle)
 export interface RouteDiscovery {

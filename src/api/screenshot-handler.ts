@@ -62,22 +62,13 @@ export async function handleScreenshotCapture(
   // Get browser instance
   const browser = await getBrowser();
 
-  // Create screenshot service with extended file operations
-  const fs = await import('fs/promises');
+  // Create screenshot service
   const screenshotService = new ScreenshotCaptureService({
     browser,
     outputDir,
     viewports,
     fixtureManager,
-    fileOperations: {
-      ...fileOperations,
-      ensureDir: async (path: string) => {
-        await fs.mkdir(path, { recursive: true });
-      },
-      remove: async (path: string) => {
-        await fs.rm(path, { recursive: true, force: true });
-      }
-    }
+    fileOperations
   });
 
   // Capture screenshots

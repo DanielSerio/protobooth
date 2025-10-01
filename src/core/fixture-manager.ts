@@ -1,12 +1,6 @@
 import type { FixtureConfig, AuthFixture, DynamicRouteFixture } from '@/types/fixtures';
+import type { FileOperations } from '@/types/file-operations';
 import { z } from 'zod';
-
-// File operations interface for dependency injection (Dependency Inversion Principle)
-export interface FileOperations {
-  readFile(path: string): Promise<string>;
-  writeFile(path: string, content: string): Promise<void>;
-  fileExists(path: string): Promise<boolean>;
-}
 
 // Validation interface (Single Responsibility Principle)
 export interface ConfigValidator {

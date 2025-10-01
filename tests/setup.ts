@@ -15,16 +15,6 @@ vi.mock('playwright', () => ({
   }
 }));
 
-// Mock fs-extra for testing
-vi.mock('fs-extra', () => ({
-  ensureDir: vi.fn(),
-  writeJSON: vi.fn(),
-  readJSON: vi.fn(),
-  writeFile: vi.fn(),
-  readFile: vi.fn(),
-  remove: vi.fn()
-}));
-
 // Mock fabric.js for testing
 vi.mock('fabric', () => ({
   fabric: {

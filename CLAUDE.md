@@ -269,7 +269,7 @@ protobooth/
 
 ### Core Production Dependencies
 - **playwright** - Headless browser automation for screenshot capture
-- **fs-extra** - Enhanced file system operations for JSON storage
+- **fs/promises** (Node.js built-in) - File system operations for JSON storage (no external dependency needed)
 - **fabric** - Canvas drawing library for basic markup tools
 - **clsx** - Utility for constructing className strings
 - **zod** - TypeScript-first schema validation for fixtures and annotations

@@ -1,11 +1,12 @@
 import fs from 'fs/promises';
 import path from 'path';
+import type { FileOperations } from '@/types/file-operations';
 
 /**
  * File storage service for persisting workflow state and annotations.
  * Uses simple JSON files for data persistence (no database required).
  */
-export class FileStorage {
+export class FileStorage implements FileOperations {
   private readonly storageDir: string;
 
   constructor(projectRoot: string) {
@@ -101,17 +102,38 @@ export class FileStorage {
   getStorageDir(): string {
     return this.storageDir;
   }
+
+  /**
+   * Ensure a directory exists (create if needed)
+   */
+  async ensureDir(dirPath: string): Promise<void> {
+    try {
+      await fs.mkdir(dirPath, { recursive: true });
+    } catch (error) {
+      console.error('Failed to create directory:', error);
+      throw new Error('Failed to create directory');
+    }
+  }
+
+  /**
+   * Remove a file or directory
+   */
+  async remove(targetPath: string): Promise<void> {
+    await fs.rm(targetPath, { recursive: true, force: true });
+  }
 }
 
 /**
  * Create file operations interface compatible with UI hooks
  */
-export function createFileOperations(projectRoot: string) {
+export function createFileOperations(projectRoot: string): FileOperations {
   const storage = new FileStorage(projectRoot);
 
   return {
     readFile: (filename: string) => storage.readFile(filename),
     writeFile: (filename: string, content: string) => storage.writeFile(filename, content),
-    fileExists: (filename: string) => storage.fileExists(filename)
+    fileExists: (filename: string) => storage.fileExists(filename),
+    ensureDir: (path: string) => storage.ensureDir(path),
+    remove: (path: string) => storage.remove(path)
   };
 }
