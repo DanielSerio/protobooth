@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { AreaHTMLAttributes } from 'react';
 import { SidebarSection } from './SidebarSection';
+import { SidebarLink } from './SidebarLink';
 
 export type SidebarProps = Omit<AreaHTMLAttributes<HTMLAreaElement>, 'id'>;
 
@@ -18,5 +19,6 @@ function Sidebar({ children, className, ...props }: SidebarProps) {
 }
 
 Sidebar.Section = SidebarSection;
+Sidebar.Link = SidebarLink;
 
 export { Sidebar };

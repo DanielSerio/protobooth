@@ -39,17 +39,21 @@
   ],
   "fixtures": {
     "auth": {
-      "user": {
-        "id": 1,
-        "name": "Demo User",
-        "role": "admin"
+      "authenticated": {
+        "user": {
+          "id": "1",
+          "name": "Demo User",
+          "email": "demo@example.com",
+          "role": "admin"
+        },
+        "token": "test-token",
+        "permissions": [
+          "read",
+          "write",
+          "admin"
+        ]
       },
-      "isAuthenticated": true,
-      "permissions": [
-        "read",
-        "write",
-        "admin"
-      ]
+      "unauthenticated": null
     },
     "dynamicRoutes": {
       "/user/$userId": [
@@ -62,11 +66,6 @@
           "userId": "456",
           "name": "Jane Smith",
           "role": "admin"
-        },
-        {
-          "userId": "789",
-          "name": "Bob Wilson",
-          "role": "moderator"
         }
       ],
       "/product/$slug": [
@@ -81,14 +80,6 @@
           "price": 79
         }
       ]
-    },
-    "globalState": {
-      "theme": "light",
-      "language": "en",
-      "featureFlags": {
-        "newDashboard": true,
-        "betaFeatures": false
-      }
     }
   },
   "viewports": [
@@ -98,15 +89,10 @@
       "height": 667
     },
     {
-      "name": "tablet",
-      "width": 768,
-      "height": 1024
-    },
-    {
       "name": "desktop",
       "width": 1440,
       "height": 900
     }
   ],
-  "timestamp": "2025-09-30T23:26:00.503Z"
+  "timestamp": "2025-10-01T21:02:17.977Z"
 }

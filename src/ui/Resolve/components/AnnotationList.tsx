@@ -93,7 +93,7 @@ function AnnotationItem({ annotation, onMarkAsResolved, onMarkAsInProgress }: An
             onClick={handleMarkAsResolved}
             disabled={isUpdating}
             size="small"
-            data-testid="mark-as-resolved-button"
+            data-testid={`resolve-annotation-${annotation.id}`}
           >
             Mark as Resolved
           </Button>
@@ -101,7 +101,9 @@ function AnnotationItem({ annotation, onMarkAsResolved, onMarkAsInProgress }: An
       </div>
 
       <div className="timestamp">
-        {annotation.timestamp.toLocaleString()}
+        {annotation.timestamp instanceof Date
+          ? annotation.timestamp.toISOString()
+          : new Date(annotation.timestamp).toISOString()}
       </div>
     </div>
   );

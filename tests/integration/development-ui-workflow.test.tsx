@@ -417,7 +417,7 @@ describe('Development UI Workflow Integration', () => {
 
       renderResolveApp();
 
-      const resolveButton = await screen.findByTestId('mark-as-resolved-button');
+      const resolveButton = await screen.findByTestId('resolve-annotation-ann-1');
       fireEvent.click(resolveButton);
 
       await waitFor(() => {

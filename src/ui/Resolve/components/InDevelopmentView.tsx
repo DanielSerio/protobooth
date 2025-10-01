@@ -19,7 +19,7 @@ export function InDevelopmentView({
 }: InDevelopmentViewProps) {
   return (
     <div className='workflow-state' data-testid='workflow-in-development'>
-      <h2>In Development</h2>
+      <h2 data-testid='workflow-state-title'>In Development</h2>
       <p>Ready to request client review of your prototype.</p>
 
       {validationErrors.length > 0 && (

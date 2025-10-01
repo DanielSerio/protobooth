@@ -20,7 +20,7 @@ export function ReviewsRequestedView({
 }: ReviewsRequestedViewProps) {
   return (
     <div className='workflow-state' data-testid='workflow-reviews-requested'>
-      <h2>Reviews Requested</h2>
+      <h2 data-testid='workflow-state-title'>Reviews Requested</h2>
       <p>Screenshots are being captured...</p>
 
       {captureProgress && (

@@ -288,31 +288,106 @@ protobooth/
     - ✅ Component structure follows modular pattern (Core, Resolve modules)
     - ✅ SCSS styling with proper namespacing (`.protobooth-*`)
     - ✅ Full workflow UI implemented (sidebar, toolbar, canvas, state management)
-  - 📝 **Next Steps**:
-    - [ ] Write integration tests for ResolveApp component interactions
-    - [ ] Connect ResolveApp to real file operations and screenshot service
-    - [ ] Implement route injection for production dev server usage
-    - [ ] Build AnnotateApp component following same pattern
-- 🎯 **CURRENT FOCUS**: UI component development and integration testing
+  - ✅ **ResolveApp Integration Tests COMPLETE** (TDD RED → GREEN cycle):
+    - ✅ **16 comprehensive integration tests** created and passing (100%):
+      - ✅ 4 workflow state transition tests (split into `resolve-app-workflow.test.tsx`)
+      - ✅ 4 screenshot capture workflow tests (split into `resolve-app-screenshot.test.tsx`)
+      - ✅ 4 annotation download workflow tests (split into `resolve-app-annotations.test.tsx`)
+      - ✅ 4 error handling scenario tests (split into `resolve-app-errors.test.tsx`)
+    - ✅ **All test files respect 201-line limit** (158, 172, 155, 127 lines respectively)
+    - ✅ **Enforced testId best practices** - eliminated all `getByText` usage:
+      - Added `workflow-state-title` testId to all view component titles
+      - Updated `resolve-annotation-{id}` pattern for annotation actions
+      - Added `general-error-message` testId pattern for error messages
+    - ✅ **100% test pass rate**: 165/165 tests passing across entire codebase
+    - ✅ **Zero TypeScript errors** across all test and source files
+    - Testing approach used:
+      - Library: Vitest + @testing-library/react + @testing-library/user-event
+      - Strategy: In-memory mocks with vi.fn() for all services
+      - Components: ErrorMessage, DeploymentInstructions, AnnotationList already existed
+  - 📝 **Next Steps** (Prioritized per Q&A.md decisions):
+    - [ ] **PRIORITY 1: Build AnnotateApp Component** (TDD approach - RED → GREEN → REFACTOR):
+      - [ ] Phase 1 (RED): Write 12-16 failing integration tests split into 4 files:
+        - `annotate-app-tools.test.tsx` - Canvas tool interactions
+        - `annotate-app-annotations.test.tsx` - Annotation CRUD operations
+        - `annotate-app-publish.test.tsx` - Publish workflow
+        - `annotate-app-errors.test.tsx` - Error scenarios
+      - [ ] Phase 2 (GREEN): Build minimal AnnotateApp implementation:
+        - Reuse Core components (Button, Layout, Sidebar, etc.)
+        - Create Annotate-specific components (Canvas with Fabric.js, AnnotationForm, PublishButton, ToolPalette)
+        - All components under 201 lines
+        - ALWAYS use testIds, NEVER text-based queries
+      - [ ] Phase 3 (REFACTOR): Improve code quality while maintaining 100% test pass rate
+    - [ ] **PRIORITY 2: Implement Route Injection** (After AnnotateApp works):
+      - [ ] TDD approach: Write integration tests for Vite plugin first
+      - [ ] Test route discovery, injection, and exclusion with demos/tanstack-router
+      - [ ] Implement Vite plugin (under 201 lines)
+      - [ ] Repeat for Next.js plugin with demos/nextjs
+    - [ ] **PRIORITY 3: Connect Real Services** (After route injection works):
+      - [ ] Implement RealFileOperations using fs-extra
+      - [ ] Implement RealScreenshotService using Playwright
+      - [ ] Implement RealFixtureManager with fixture loading
+      - [ ] Use dependency injection pattern (already established)
+      - [ ] Keep mock implementations for tests
+    - [ ] **PRIORITY 4: REFACTOR Phase** (After everything works):
+      - [ ] Extract shared patterns (ViewContainer component)
+      - [ ] Create useWorkflowTransitions hook
+      - [ ] Consolidate duplicate type definitions
+      - [ ] Maintain 100% test pass rate (165+ tests) throughout
+      - [ ] Keep all files under 201 lines
+- 🎯 **CURRENT FOCUS**: Ready to start AnnotateApp TDD cycle (Priority 1) - see Q&A.md "Next Steps Planning" section for detailed approach
 
 ## Blockers & Questions
 
 **Current Blockers**: None - ready for implementation
 
-**Questions for Next Session**:
+**Questions Resolved** (see Q&A.md "Next Steps Planning" section):
 
-- None - all clarifications completed in planning phase
+✅ **Priority for next development steps?**
+- Decision: Build AnnotateApp first → Route Injection → Real Services → REFACTOR
+- Rationale: Completes full workflow, follows TDD, delivers user-facing value
 
-## Test-First Implementation Priority
+✅ **How to approach AnnotateApp with TDD?**
+- Decision: Follow same successful pattern as ResolveApp (RED → GREEN → REFACTOR)
+- Tests first: 12-16 integration tests in 4 files (under 201 lines each)
+- ALWAYS use testIds, NEVER text-based queries
 
-1. **Demo Applications**: Create testing environments first
-2. **Router Discovery**: Write tests then implement (simplest component)
-3. **Fixture Management**: Test-driven fixture system development
-4. **Screenshot Capture**: Test with demo apps then implement
-5. **UI Components**: Test-driven development for both UIs
-6. **Download Mechanism**: Test-driven implementation
-7. **End-to-End Validation**: Full workflow testing with demo apps
-8. **Package and Publish**: Final integration testing
+✅ **Real services or mocks?**
+- Decision: BOTH - mocks for tests (fast), real implementations for production
+- Use dependency injection pattern already established in ResolveApp.props
+
+✅ **How to test route injection?**
+- Decision: TDD with demo applications (demos/tanstack-router, demos/nextjs)
+- Write integration tests first, then implement plugins
+
+✅ **What needs refactoring?**
+- Decision: Do LAST after everything works
+- Focus: Component composition, hook extraction, type consolidation
+- Rule: Maintain 100% test pass rate throughout
+
+## Test-First Implementation Priority (Updated per Q&A.md)
+
+**PRIORITY 1: AnnotateApp Component (TDD)**
+1. **Write failing tests** (RED) - 12-16 integration tests in 4 files
+2. **Build minimal implementation** (GREEN) - Reuse Core components, Fabric.js canvas
+3. **Refactor for quality** (REFACTOR) - Maintain 100% test pass rate
+
+**PRIORITY 2: Route Injection (TDD)**
+4. **Write plugin tests** - Integration tests for Vite plugin with demos/tanstack-router
+5. **Implement Vite plugin** - Route discovery, injection, exclusion (under 201 lines)
+6. **Write Next.js tests** - Integration tests with demos/nextjs
+7. **Implement Next.js plugin** - App Router and Pages Router support
+
+**PRIORITY 3: Real Services (TDD)**
+8. **Write service tests** - Integration tests for real file operations
+9. **Implement RealFileOperations** - Using fs-extra (under 201 lines)
+10. **Implement RealScreenshotService** - Using Playwright (under 201 lines)
+11. **Implement RealFixtureManager** - Fixture loading (under 201 lines)
+
+**PRIORITY 4: REFACTOR**
+12. **Extract shared patterns** - Component composition, hook extraction
+13. **Consolidate types** - Reduce duplication in type definitions
+14. **Final E2E validation** - Full workflow testing with real demo apps
 
 ## Success Criteria
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, StatusBadge, Sidebar, ToolbarStack } from '@/ui/Core/components';
+import { Layout, StatusBadge } from '@/ui/Core/components';
 import {
   useWorkflowState,
   useAnnotations,
@@ -18,6 +18,8 @@ import {
 } from './defaultServices';
 import type { ResolveAppProps } from './ResolveApp.props';
 import '../../styles/resolve-ui/index.scss';
+import { ResolveSidebar } from './ResolveSidebar';
+import { ResolveFooter } from './ResolveFooter/ResolveFooter';
 
 /**
  * Main component for the resolver app. This will be injected into the router.
@@ -65,15 +67,18 @@ export function ResolveApp({
     getValidationErrors().then(setValidationErrors);
   }, [getValidationErrors, workflowState]);
 
-  const { handleRequestReview, handleDownloadAnnotations, handleResetWorkflow } =
-    useResolveHandlers({
-      getValidationErrors,
-      setValidationErrors,
-      updateWorkflowState,
-      captureScreenshots,
-      downloadAnnotations,
-      resetWorkflow,
-    });
+  const {
+    handleRequestReview,
+    handleDownloadAnnotations,
+    handleResetWorkflow,
+  } = useResolveHandlers({
+    getValidationErrors,
+    setValidationErrors,
+    updateWorkflowState,
+    captureScreenshots,
+    downloadAnnotations,
+    resetWorkflow,
+  });
 
   const renderWorkflowContent = () => {
     if (isStateLoading) {
@@ -140,17 +145,9 @@ export function ResolveApp({
       id='protobooth-resolve'
       className='resolve-app'
       data-testid='resolve-app'>
-      <Sidebar>
-        <h1>Sidebar</h1>
-      </Sidebar>
-      <ToolbarStack>
-        <ToolbarStack.Toolbar id='toolMenu'>
-          <h1>Tools</h1>
-        </ToolbarStack.Toolbar>
-        <ToolbarStack.Toolbar id='navMenu'>
-          <h1>Navigation</h1>
-        </ToolbarStack.Toolbar>
-      </ToolbarStack>
+      <ResolveSidebar />
+      <ResolveFooter />
+
       <div className='header'>
         <h1>protobooth Development Interface</h1>
         <StatusBadge status={workflowState} data-testid='workflow-status' />

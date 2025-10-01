@@ -31,7 +31,7 @@ export function SubmittedForDevelopmentView({
     <div
       className='workflow-state'
       data-testid='workflow-submitted-for-development'>
-      <h2>Submitted For Development</h2>
+      <h2 data-testid='workflow-state-title'>Submitted For Development</h2>
       <p data-testid='annotations-count'>
         {progressStats.total} annotations ready for resolution.
       </p>

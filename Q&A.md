@@ -354,6 +354,184 @@ The staging environment needs both the annotation UI HTML and all screenshot ass
 
 ---
 
+## Next Steps Planning (CURRENT FOCUS)
+
+### Q: What's the priority for next development steps?
+
+**A:** Based on PROGRESS.README.md, we have four possible directions:
+
+1. Connect ResolveApp to real file operations and screenshot service
+2. Implement route injection for production dev server usage
+3. Build AnnotateApp component following same pattern
+4. REFACTOR phase: Improve code quality while maintaining test coverage
+
+**Recommended Priority (following core principles):**
+
+**(CURRENT FOCUS) 1. Build AnnotateApp Component First** - Following TDD approach:
+- **Why first**: Completes the full workflow cycle (dev UI + client UI)
+- **Aligns with TDD**: Write tests before implementation (RED → GREEN → REFACTOR)
+- **Simplicity**: Reuse existing Core components, keep focused
+- **File size**: Each file under 201 lines
+- **TestIds**: ALWAYS use testIds, never text-based queries
+- **Value**: Delivers complete user-facing functionality
+
+**(CURRENT FOCUS) 2. Implement Route Injection** - After AnnotateApp works:
+- **Why second**: Enables real usage of both UIs in host applications
+- **Test with demos**: Use demos/tanstack-router and demos/nextjs
+- **TDD approach**: Write integration tests for route injection first
+- **Start simple**: Vite plugin first (simpler), then Next.js plugin
+- **File size**: Each plugin under 201 lines
+
+**(CURRENT FOCUS) 3. Connect Real Services** - After route injection works:
+- **Why third**: Makes the tool actually functional end-to-end
+- **fs-extra**: Implement real file operations with fs-extra
+- **Playwright**: Implement real screenshot service with Playwright
+- **Keep mocks**: Maintain mock implementations for tests
+- **TDD**: Write tests for real service implementations
+
+**(CURRENT FOCUS) 4. REFACTOR Phase** - After everything works:
+- **Why last**: Only refactor working code with passing tests
+- **Maintain 100%**: Keep all 165 tests passing throughout
+- **Focus areas**: Code duplication, component composition, hook extraction
+- **File size**: Ensure all files still under 201 lines after refactoring
+
+### Q: How should we approach building AnnotateApp with TDD?
+
+**A:** Follow the exact same successful pattern we used for ResolveApp:
+
+**(CURRENT FOCUS) Phase 1 - RED: Write Failing Tests**
+- Create 12-16 integration tests for AnnotateApp interactions:
+  - Canvas annotation tools (draw, text, arrows)
+  - Annotation list management (add, edit, delete)
+  - Priority setting (high, medium, low)
+  - Publish workflow (save and submit annotations)
+  - Error handling (upload failures, validation errors)
+- Split tests into multiple files (under 201 lines each):
+  - `annotate-app-tools.test.tsx` - Canvas tool interactions
+  - `annotate-app-annotations.test.tsx` - Annotation CRUD operations
+  - `annotate-app-publish.test.tsx` - Publish workflow
+  - `annotate-app-errors.test.tsx` - Error scenarios
+- **ALWAYS use testIds** - Never `getByText`, always `data-testid`
+- Use in-memory mocks with `vi.fn()` for all services
+
+**(CURRENT FOCUS) Phase 2 - GREEN: Make Tests Pass**
+- Build minimal AnnotateApp implementation
+- Reuse Core components (Button, Layout, Sidebar, etc.)
+- Create Annotate-specific components:
+  - Canvas with Fabric.js for drawing
+  - AnnotationForm for creating/editing annotations
+  - PublishButton with confirmation dialog
+  - ToolPalette for drawing tools
+- Keep all components under 201 lines
+- Add testIds to ALL interactive elements
+
+**(CURRENT FOCUS) Phase 3 - REFACTOR: Improve Quality**
+- Extract reusable hooks
+- Improve component composition
+- Reduce code duplication
+- Maintain 100% test pass rate
+
+### Q: Should we create real service implementations or keep using mocks?
+
+**A:** **Both** - following separation of concerns:
+
+**(CURRENT FOCUS) For Tests:**
+- **ALWAYS use mocks** - Tests should be fast and isolated
+- Keep using `vi.fn()` with in-memory data
+- No file I/O, no browser automation in tests
+- This ensures tests run in milliseconds
+
+**(CURRENT FOCUS) For Production Code:**
+- **Create real implementations** - For actual tool functionality
+- Use dependency injection pattern (already established in ResolveApp.props)
+- Implement:
+  - `RealFileOperations` using fs-extra
+  - `RealScreenshotService` using Playwright
+  - `RealFixtureManager` with fixture loading
+- Keep mock implementations for development UI testing
+
+**(CURRENT FOCUS) Architecture:**
+```typescript
+// src/services/file-operations.ts (real implementation)
+export class RealFileOperations implements FileOperations {
+  async readFile(path: string): Promise<string> {
+    return fs.readFile(path, 'utf-8');
+  }
+  // ... under 201 lines
+}
+
+// src/services/mock-file-operations.ts (for tests)
+export function createMockFileOperations(): FileOperations {
+  return {
+    readFile: vi.fn(),
+    writeFile: vi.fn(),
+    fileExists: vi.fn(),
+  };
+}
+```
+
+### Q: How should route injection be tested?
+
+**A:** **TDD with demo applications:**
+
+**(CURRENT FOCUS) Test Strategy:**
+1. **Write integration tests first** (RED phase)
+2. **Test with real demo apps** - Use demos/tanstack-router and demos/nextjs
+3. **Test route discovery** - Verify correct routes are found
+4. **Test route injection** - Verify `/protobooth` routes are added
+5. **Test route exclusion** - Verify `/protobooth` routes excluded from screenshots
+6. **Keep tests under 201 lines** - Split into multiple test files if needed
+
+**(CURRENT FOCUS) Example Test Structure:**
+```typescript
+// tests/integration/vite-plugin-routes.test.ts
+describe('Vite Plugin - Route Discovery', () => {
+  it('should discover file-based routes from TanStack Router', async () => {
+    // Test route discovery logic
+  });
+
+  it('should inject /protobooth/resolve route', async () => {
+    // Test route injection
+  });
+
+  it('should inject /protobooth/annotate route', async () => {
+    // Test route injection
+  });
+
+  it('should exclude /protobooth/* from screenshot capture', async () => {
+    // Test exclusion logic
+  });
+});
+```
+
+### Q: What code areas need refactoring after GREEN phase?
+
+**A:** **Potential refactoring candidates** (ONLY after all tests pass):
+
+**(CURRENT FOCUS) Component Composition:**
+- Extract shared patterns between InDevelopmentView, InReviewView, etc.
+- Create base ViewContainer component for common layout
+- Reduce duplication in view components
+
+**(CURRENT FOCUS) Hook Extraction:**
+- Consider extracting common patterns from useResolveHandlers
+- Create useWorkflowTransitions hook for state management
+- Extract useFileOperations hook for file I/O patterns
+
+**(CURRENT FOCUS) Type Definitions:**
+- Consolidate duplicate type definitions
+- Create shared types in Core module
+- Reduce type duplication between Resolve and Annotate modules
+
+**(CURRENT FOCUS) Refactoring Rules:**
+- **NEVER refactor without tests** - All 165+ tests must pass
+- **One refactoring at a time** - Make small, incremental improvements
+- **Maintain 201-line limit** - If refactoring creates large files, split them
+- **Keep testIds unchanged** - Don't break tests during refactoring
+- **Run tests after each change** - Ensure no regressions
+
+---
+
 ## Still Have Questions?
 
 - **Check the documentation**: `CLAUDE.md` has extensive technical details

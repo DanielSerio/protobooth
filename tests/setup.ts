@@ -24,3 +24,15 @@ vi.mock('fs-extra', () => ({
   readFile: vi.fn(),
   remove: vi.fn()
 }));
+
+// Mock fabric.js for testing
+vi.mock('fabric', () => ({
+  fabric: {
+    Canvas: vi.fn(() => ({
+      clear: vi.fn(),
+      setBackgroundImage: vi.fn((_img, callback) => callback()),
+      renderAll: vi.fn()
+    })),
+    Image: vi.fn((img) => ({ img }))
+  }
+}));

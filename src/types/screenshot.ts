@@ -15,6 +15,9 @@ export interface ScreenshotResult {
   timestamp: Date;
 }
 
+// Alias for client-facing screenshot data
+export type Screenshot = ScreenshotResult;
+
 export interface CaptureRequest {
   appUrl: string;
   projectPath: string;

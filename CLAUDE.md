@@ -23,6 +23,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 2. **Simplicity First**: Always keep things as simple as possible. Complexity can be added later.
 3. **SOLID Principles**: Apply SOLID design principles consistently, even during planning phases.
 4. **File Size Limits**: Keep all `.ts`, `.tsx`, `.css`, `.scss` files under 201 lines for maintainability and readability.
+5. **ALWAYS Use TestIds for Testing - NON-NEGOTIABLE**:
+   - NEVER use `getByText`, `getByRole` with text, or ANY text-based queries in tests
+   - ALWAYS use `data-testid` attributes and `getByTestId` for ALL test queries
+   - This is a MANDATORY rule - text-based queries are FORBIDDEN
+   - See "Testing Best Practices - CRITICAL" section below for detailed rationale and examples
+6. **TypeScript Strict Mode - NO `any` TYPES ALLOWED**:
+   - NEVER use `any` types - this is a MANDATORY rule
+   - ALWAYS create proper interfaces and type definitions
+   - Leverage existing package types (Playwright, Fabric.js, etc.)
+   - Use `unknown` if type is truly unknown, then narrow with type guards
+   - Strict type safety is non-negotiable across the entire codebase
 
 ## System Architecture
 
@@ -345,6 +356,106 @@ protobooth/
 - **Integration Testing**: Focus on testing complete workflows and route injection process
 - **Staging Simulation**: Development environment must support simulating staging mode for annotation UI testing
 - **TypeScript Strictness**: Do not use `any` types - create proper interfaces and leverage existing package types
+
+### Testing Best Practices - CRITICAL
+
+**MANDATORY RULE: ALWAYS USE TESTIDS**
+
+Testing with text-based queries (`getByText`, `getByRole` with text) is **FORBIDDEN**. This rule is non-negotiable.
+
+#### Why TestIds Are Mandatory:
+
+1. **Stability**: UI text changes frequently during development - tests should not break when copy changes
+2. **Internationalization**: Text-based queries fail completely when the app supports multiple languages
+3. **Uniqueness**: Multiple elements often contain the same text (headings, badges, buttons) causing ambiguous queries
+4. **Reliability**: TestIds provide explicit contracts between components and tests
+5. **Maintainability**: Clear testIds make test failures easier to debug and understand
+
+#### TestId Naming Conventions:
+
+```typescript
+// ✅ CORRECT - Use descriptive, specific testIds
+<button data-testid="request-review-button">Request Review</button>
+<h2 data-testid="workflow-state-title">In Development</h2>
+<div data-testid="workflow-in-development">...</div>
+<div data-testid="general-error-message">Error text</div>
+
+// ✅ CORRECT - Use dynamic testIds for list items
+<button data-testid={`resolve-annotation-${annotation.id}`}>Resolve</button>
+<div data-testid={`${testId}-message`}>...</div>
+
+// ❌ WRONG - Never use text queries
+screen.getByText('In Development')  // FORBIDDEN
+screen.getByRole('button', { name: 'Request Review' })  // FORBIDDEN
+```
+
+#### Test Query Priority (ALWAYS in this order):
+
+1. **FIRST CHOICE**: `getByTestId` / `findByTestId` - Use for ALL queries
+2. **NEVER USE**: `getByText`, `getByRole` with text, any text-based query
+
+#### Example - Correct Test Pattern:
+
+```typescript
+// ✅ CORRECT
+it('should transition to Reviews Requested state', async () => {
+  render(<ResolveApp {...mockProps} />);
+
+  await waitFor(() => {
+    expect(screen.getByTestId('workflow-in-development')).toBeInTheDocument();
+  });
+
+  const button = screen.getByTestId('request-review-button');
+  await user.click(button);
+
+  await waitFor(() => {
+    expect(screen.getByTestId('workflow-reviews-requested')).toBeInTheDocument();
+  });
+});
+
+// ❌ WRONG - NEVER DO THIS
+it('should transition to Reviews Requested state', async () => {
+  render(<ResolveApp {...mockProps} />);
+
+  expect(screen.getByText('In Development')).toBeInTheDocument(); // FORBIDDEN
+  const button = screen.getByRole('button', { name: 'Request Review' }); // FORBIDDEN
+  await user.click(button);
+
+  expect(screen.getByText('Reviews Requested')).toBeInTheDocument(); // FORBIDDEN
+});
+```
+
+#### Running Tests - CRITICAL:
+
+Tests MUST be run from the project root directory with pattern matching:
+
+```bash
+# ✅ CORRECT - Always use this pattern
+cd /c/developer/protobooth && npx vitest run {pattern} --no-coverage
+
+# Examples:
+cd /c/developer/protobooth && npx vitest run resolve-app --no-coverage
+cd /c/developer/protobooth && npx vitest run resolve-app-workflow --no-coverage
+
+# ❌ WRONG - Do not use full file paths
+npx vitest run tests/integration/resolve-app-workflow.test.tsx  # May fail with "No test suite found"
+```
+
+**Why this matters**: Vitest has path resolution issues on Windows when using full file paths. Using pattern matching from the project root ensures reliable test execution.
+
+#### Async Testing with React Components:
+
+Always use `waitFor` for assertions that depend on async operations:
+
+```typescript
+// ✅ CORRECT - Wait for async operations
+await waitFor(() => {
+  expect(mockService.method).toHaveBeenCalledOnce();
+});
+
+// ❌ WRONG - Direct assertion on async operation
+expect(mockService.method).toHaveBeenCalledOnce(); // May fail due to timing
+```
 
 ## Implementation Priorities
 
