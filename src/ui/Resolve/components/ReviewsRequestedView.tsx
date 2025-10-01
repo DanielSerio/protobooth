@@ -1,0 +1,42 @@
+import { DeploymentInstructions } from './DeploymentInstructions';
+
+interface CaptureResultSummary {
+  screenshotCount: number;
+  outputPath: string;
+  deploymentInstructions?: string[];
+}
+
+interface ReviewsRequestedViewProps {
+  captureProgress: string | null;
+  lastCaptureResult: CaptureResultSummary | null;
+}
+
+/**
+ * View component for the "Reviews Requested" workflow state
+ */
+export function ReviewsRequestedView({
+  captureProgress,
+  lastCaptureResult,
+}: ReviewsRequestedViewProps) {
+  return (
+    <div className='workflow-state' data-testid='workflow-reviews-requested'>
+      <h2>Reviews Requested</h2>
+      <p>Screenshots are being captured...</p>
+
+      {captureProgress && (
+        <div className='progress-info' data-testid='capture-progress'>
+          <p>{captureProgress}</p>
+        </div>
+      )}
+
+      {lastCaptureResult && (
+        <DeploymentInstructions
+          screenshotCount={lastCaptureResult.screenshotCount}
+          outputPath={lastCaptureResult.outputPath}
+          instructions={lastCaptureResult.deploymentInstructions || []}
+          data-testid='deployment-instructions'
+        />
+      )}
+    </div>
+  );
+}
