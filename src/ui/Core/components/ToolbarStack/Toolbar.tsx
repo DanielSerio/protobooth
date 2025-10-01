@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { AreaHTMLAttributes } from 'react';
 
-export interface ToolbarProps extends AreaHTMLAttributes<HTMLAreaElement> {
+export interface ToolbarProps extends AreaHTMLAttributes<HTMLDivElement> {
   id: string;
 }
 
@@ -9,11 +9,11 @@ export interface ToolbarProps extends AreaHTMLAttributes<HTMLAreaElement> {
  * Main `Toolbar` component.
  */
 export function Toolbar({ id, className, children, ...props }: ToolbarProps) {
-  const classNames = clsx(['protobooth-toolbar', id, className]);
+  const classNames = clsx(['toolbar', id, className]);
 
   return (
-    <section id={id} className={classNames} {...props}>
+    <div id={id} className={classNames} {...props}>
       {children}
-    </section>
+    </div>
   );
 }
