@@ -1,0 +1,12 @@
+@use '../config/index.scss' as config;
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100svh;
+  width: #{config.$sidebar-width * 1px};
+  z-index: 2;
+  border-right: 1px solid var(--border-color);
+  background: var(--panel-background);
+}

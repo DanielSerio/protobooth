@@ -1,0 +1,12 @@
+@use '../config/index.scss' as config;
+
+.toolbar-stack {
+  position: fixed;
+  left: #{config.$sidebar-width * 1px};
+  bottom: 0;
+  width: calc(100% - #{config.$sidebar-width * 1px});
+  max-height: #{config.$toolbar-height * 2px};
+  z-index: 1;
+  border-top: 1px solid var(--border-color);
+  background: var(--panel-background);
+}
