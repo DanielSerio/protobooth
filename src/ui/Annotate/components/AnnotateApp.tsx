@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import type { Screenshot } from '@/types/screenshot';
+import { Layout } from '@/ui/Core/components';
 import { AnnotationForm } from './AnnotationForm';
-import { AnnotationList } from './AnnotationList';
-import { ToolPalette } from './ToolPalette';
-import { ColorPicker } from './ColorPicker';
 import { PublishDialog } from './PublishDialog';
 import { ErrorDisplay } from './ErrorDisplay';
+import { AnnotateSidebar } from './AnnotateSidebar';
+import { AnnotateFooter } from './AnnotateFooter';
 import { useAnnotationManagement, useCanvasTools, usePublishWorkflow } from '../hooks';
 import '../../styles/annotate-ui/index.scss';
 
@@ -76,64 +76,59 @@ export function AnnotateApp({ onSaveAnnotation, onPublish, screenshots }: Annota
   }
 
   return (
-    <div className="protobooth-annotate-app">
-      <div className="protobooth-canvas-container">
-        <canvas ref={fabricRef} data-testid="annotate-canvas" onClick={handleCanvasClick} />
-        <img data-testid="screenshot-image" src={screenshots[0].filePath} style={{ display: 'none' }} alt="" />
-      </div>
-
-      <ToolPalette
-        activeTool={activeTool}
-        onToolClick={handleToolClick}
-        onClearCanvas={handleClearCanvas}
-      />
-
-      <ColorPicker selectedColor={selectedColor} onColorChange={handleColorChange} />
-
-      {showAnnotationForm && (
-        <AnnotationForm
-          content={annotationContent}
-          priority={annotationPriority}
-          onContentChange={setAnnotationContent}
-          onPriorityChange={setAnnotationPriority}
-          onSave={handleSaveAnnotation}
-          onCancel={handleCancelAnnotation}
-        />
-      )}
-
-      <AnnotationList
+    <Layout id="protobooth-annotate-app" className="protobooth-annotate-app">
+      <AnnotateSidebar
         annotations={annotations}
         onEdit={handleEditAnnotation}
         onDelete={handleDeleteAnnotation}
       />
 
-      <button
-        className="protobooth-publish-button"
-        data-testid="publish-button"
-        onClick={handlePublishClick}
-        disabled={annotations.length === 0 || isPublishing}
-      >
-        Publish
-      </button>
+      <main className="protobooth-main-content">
+        <div className="protobooth-canvas-container">
+          <canvas ref={fabricRef} data-testid="annotate-canvas" onClick={handleCanvasClick} />
+          <img data-testid="screenshot-image" src={screenshots[0].filePath} style={{ display: 'none' }} alt="" />
+        </div>
 
-      {showPublishDialog && (
-        <PublishDialog
-          annotationCount={annotations.length}
-          onConfirm={handleConfirmPublish}
-          onCancel={handleCancelPublish}
-        />
-      )}
+        {showAnnotationForm && (
+          <AnnotationForm
+            content={annotationContent}
+            priority={annotationPriority}
+            onContentChange={setAnnotationContent}
+            onPriorityChange={setAnnotationPriority}
+            onSave={handleSaveAnnotation}
+            onCancel={handleCancelAnnotation}
+          />
+        )}
 
-      {isPublishing && <div data-testid="publish-progress">Publishing...</div>}
+        {showPublishDialog && (
+          <PublishDialog
+            annotationCount={annotations.length}
+            onConfirm={handleConfirmPublish}
+            onCancel={handleCancelPublish}
+          />
+        )}
 
-      {error && (
-        <ErrorDisplay
-          type={error.type}
-          message={error.message}
-          onDismiss={handleDismissError}
-          onRetry={handleRetry}
-        />
-      )}
-    </div>
+        {isPublishing && <div data-testid="publish-progress">Publishing...</div>}
+
+        {error && (
+          <ErrorDisplay
+            type={error.type}
+            message={error.message}
+            onDismiss={handleDismissError}
+            onRetry={handleRetry}
+          />
+        )}
+      </main>
+
+      <AnnotateFooter
+        activeTool={activeTool}
+        selectedColor={selectedColor}
+        onToolClick={handleToolClick}
+        onColorChange={handleColorChange}
+        onClearCanvas={handleClearCanvas}
+        onPublish={handlePublishClick}
+        publishDisabled={annotations.length === 0 || isPublishing}
+      />
+    </Layout>
   );
 }
