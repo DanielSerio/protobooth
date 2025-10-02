@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Screenshot } from '@/types/screenshot';
+import type { Annotation } from '@/types/annotations';
 import { Layout } from '@/ui/Core/components';
 import { AnnotationForm } from './AnnotationForm';
 import { PublishDialog } from './PublishDialog';
@@ -10,7 +11,7 @@ import { useAnnotationManagement, useCanvasTools, usePublishWorkflow } from '../
 import '../../styles/annotate-ui/index.scss';
 
 export interface AnnotateAppProps {
-  onSaveAnnotation: (annotation: any) => Promise<void>;
+  onSaveAnnotation: (annotation: Annotation) => Promise<void>;
   onPublish: () => Promise<void>;
   screenshots: Screenshot[];
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ResolveApp } from '../Resolve/components/ResolveApp';
 import type { ProtoboothConfig } from '@/types/config';
+import type { CaptureOptions } from '../Resolve/components/ResolveApp.props';
 import '../../ui/styles/resolve-ui/index.scss';
 
 // Mock config for development
@@ -49,7 +50,7 @@ const mockFileOps = {
 
 // Mock screenshot service for development
 const mockScreenshotService = {
-  captureRoutes: async (options: any) => {
+  captureRoutes: async (options: CaptureOptions) => {
     console.log('[Dev] Capturing screenshots with options:', options);
     return {
       screenshots: [

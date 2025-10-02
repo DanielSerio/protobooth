@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { AnnotateApp } from '../Annotate/components/AnnotateApp';
 import type { Screenshot } from '@/types/screenshot';
+import type { Annotation } from '@/types/annotations';
 import '../../ui/styles/annotate-ui/index.scss';
 
 // Create a simple placeholder image as a data URI (800x600 light gray rectangle with text)
@@ -61,7 +62,7 @@ const mockScreenshots: Screenshot[] = [
 ];
 
 // Mock annotation save handler
-const handleSaveAnnotation = async (annotation: any): Promise<void> => {
+const handleSaveAnnotation = async (annotation: Annotation): Promise<void> => {
   console.log('[Staging Simulation] Saving annotation:', annotation);
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 500));

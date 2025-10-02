@@ -101,6 +101,7 @@ function initializeResolveApp() {
         fileOperations={fileOperations}
         screenshotService={screenshotService}
         fixtureManager={fixtureManager}
+        config={config}
       />
     </React.StrictMode>
   );

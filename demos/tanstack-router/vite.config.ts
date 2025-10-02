@@ -1,10 +1,10 @@
-import { defineConfig } from 'vite';
+import { defineConfig, UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
+import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import { createVitePlugin as protobooth } from 'protobooth/vite';
 import path from 'path';
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   resolve: {
     alias: {
       // Map @/ imports to protobooth src directory
@@ -22,14 +22,17 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    TanStackRouterVite(),
+    tanstackRouter(),
     protobooth({
-      enabled: process.env.NODE_ENV === 'development',
+      enabled: command === 'serve',
       fixtures: {
         auth: {
-          user: { id: 1, name: 'Demo User', role: 'admin' },
-          isAuthenticated: true,
-          permissions: ['read', 'write', 'admin']
+          authenticated: {
+            user: { id: '1', name: 'Demo User', email: 'demo@example.com', role: 'admin' },
+            token: 'demo-token',
+            permissions: ['read', 'write', 'admin']
+          },
+          unauthenticated: null
         },
         dynamicRoutes: {
           '/user/$userId': [
@@ -58,4 +61,4 @@ export default defineConfig({
       ]
     })
   ]
-});
+}) as UserConfig);

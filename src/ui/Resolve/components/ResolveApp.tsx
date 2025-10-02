@@ -28,6 +28,7 @@ export function ResolveApp({
   fileOperations = defaultFileOps,
   screenshotService = defaultScreenshotService,
   fixtureManager = defaultFixtureManager,
+  config,
 }: ResolveAppProps = {}) {
   const {
     workflowState,
@@ -58,6 +59,7 @@ export function ResolveApp({
     fixtureManager,
     screenshotService,
     fileOperations,
+    config,
   });
 
   const [validationErrors, setValidationErrors] = React.useState<string[]>([]);

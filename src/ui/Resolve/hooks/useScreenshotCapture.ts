@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import type { ProtoboothConfig } from '@/types/config';
 
 interface ScreenshotCaptureOptions {
   appUrl: string;
@@ -33,6 +34,7 @@ interface UseScreenshotCaptureOptions {
   fileOperations: {
     fileExists: (path: string) => Promise<boolean>;
   };
+  config?: ProtoboothConfig;
 }
 
 export function useScreenshotCapture(options: UseScreenshotCaptureOptions) {
@@ -42,13 +44,9 @@ export function useScreenshotCapture(options: UseScreenshotCaptureOptions) {
   const [lastCaptureResult, setLastCaptureResult] = useState<CaptureResult | null>(null);
 
   const validateConfiguration = useCallback(async (): Promise<boolean> => {
-    try {
-      const configExists = await options.fileOperations.fileExists('protobooth.config.json');
-      return configExists;
-    } catch {
-      return false;
-    }
-  }, [options.fileOperations]);
+    // Check if config exists (injected via window.__PROTOBOOTH_CONFIG__)
+    return !!options.config;
+  }, [options.config]);
 
   const captureScreenshots = useCallback(async (captureOptions: ScreenshotCaptureOptions): Promise<CaptureResult> => {
     try {
@@ -109,17 +107,12 @@ export function useScreenshotCapture(options: UseScreenshotCaptureOptions) {
   const getValidationErrors = useCallback(async (): Promise<string[]> => {
     const errors: string[] = [];
 
-    try {
-      const configExists = await options.fileOperations.fileExists('protobooth.config.json');
-      if (!configExists) {
-        errors.push('Missing protobooth.config.json - please configure fixtures');
-      }
-    } catch {
-      errors.push('Unable to check configuration file');
+    if (!options.config) {
+      errors.push('Configuration not found - please configure protobooth plugin');
     }
 
     return errors;
-  }, [options.fileOperations]);
+  }, [options.config]);
 
   return {
     isCapturing,

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Annotation } from '@/types/annotations';
 
 interface UseAnnotationManagementProps {
-  onSaveAnnotation: (annotation: any) => Promise<void>;
+  onSaveAnnotation: (annotation: Annotation) => Promise<void>;
   defaultRoute: string;
   defaultViewport: string;
 }

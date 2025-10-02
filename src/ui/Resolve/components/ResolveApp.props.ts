@@ -1,4 +1,5 @@
 import type { CaptureResult } from '@/types/screenshot';
+import type { ProtoboothConfig } from '@/types/config';
 
 export interface FileOperations {
   readFile: (path: string) => Promise<string>;
@@ -28,4 +29,5 @@ export interface ResolveAppProps {
   fileOperations?: FileOperations;
   screenshotService?: ScreenshotService;
   fixtureManager?: FixtureManager;
+  config?: ProtoboothConfig;
 }
