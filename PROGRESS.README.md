@@ -2,10 +2,12 @@
 
 This file tracks development progress across Claude Code sessions for the protobooth project.
 
-## Project Status: UI Development Phase - ResolveApp Component Rendering ✅
+## Project Status: UI Development Complete + Service Integration Complete ✅
 
-**Current Phase**: Developer Resolution UI (ResolveApp) now rendering with mock data
-**Last Updated**: 2025-09-30
+**Current Phase**: Both UIs (ResolveApp + AnnotateApp) complete with full service integration
+**Last Updated**: 2025-10-01
+**Test Suite**: 209/209 tests passing (24 test files)
+**TypeScript**: Zero errors - 100% type-safe
 
 ## Completed Planning Work
 
@@ -278,7 +280,9 @@ protobooth/
   - ✅ **Removed Pages Router**: Deleted src/pages/ directory entirely
   - ✅ **Documentation Updated**: Planning docs reflect App Router as primary approach
   - ✅ **Future Plans Documented**: Next.js Pages Router and TanStack code-based routing demos planned
-- ✅ **TEST SUITE STATUS**: All 145 tests passing across entire codebase (13 test files)
+- ✅ **TEST SUITE STATUS**: All 209 tests passing across entire codebase (24 test files)
+  - Unit tests: 83 tests (fixture-manager, router discovery, integrations, file-storage)
+  - Integration tests: 126 tests (route injection, screenshot capture, UI workflows, demo plugins)
 - 🚀 **UI DEVELOPMENT PHASE STARTED**:
   - ✅ **ResolveApp Component Rendering**:
     - ✅ Created standalone dev environment for UI development (`vite.dev.config.ts`)
@@ -299,43 +303,67 @@ protobooth/
       - Added `workflow-state-title` testId to all view component titles
       - Updated `resolve-annotation-{id}` pattern for annotation actions
       - Added `general-error-message` testId pattern for error messages
-    - ✅ **100% test pass rate**: 165/165 tests passing across entire codebase
+    - ✅ **100% test pass rate**: 165/165 tests passing at time of ResolveApp completion
     - ✅ **Zero TypeScript errors** across all test and source files
+    - Note: Test count increased to 198 after AnnotateApp, then 209 after FileStorage tests
     - Testing approach used:
       - Library: Vitest + @testing-library/react + @testing-library/user-event
       - Strategy: In-memory mocks with vi.fn() for all services
       - Components: ErrorMessage, DeploymentInstructions, AnnotationList already existed
-  - 📝 **Next Steps** (Prioritized per Q&A.md decisions):
-    - [ ] **PRIORITY 1: Build AnnotateApp Component** (TDD approach - RED → GREEN → REFACTOR):
-      - [ ] Phase 1 (RED): Write 12-16 failing integration tests split into 4 files:
-        - `annotate-app-tools.test.tsx` - Canvas tool interactions
-        - `annotate-app-annotations.test.tsx` - Annotation CRUD operations
-        - `annotate-app-publish.test.tsx` - Publish workflow
-        - `annotate-app-errors.test.tsx` - Error scenarios
-      - [ ] Phase 2 (GREEN): Build minimal AnnotateApp implementation:
-        - Reuse Core components (Button, Layout, Sidebar, etc.)
-        - Create Annotate-specific components (Canvas with Fabric.js, AnnotationForm, PublishButton, ToolPalette)
-        - All components under 201 lines
-        - ALWAYS use testIds, NEVER text-based queries
-      - [ ] Phase 3 (REFACTOR): Improve code quality while maintaining 100% test pass rate
-    - [ ] **PRIORITY 2: Implement Route Injection** (After AnnotateApp works):
-      - [ ] TDD approach: Write integration tests for Vite plugin first
-      - [ ] Test route discovery, injection, and exclusion with demos/tanstack-router
-      - [ ] Implement Vite plugin (under 201 lines)
-      - [ ] Repeat for Next.js plugin with demos/nextjs
-    - [ ] **PRIORITY 3: Connect Real Services** (After route injection works):
-      - [ ] Implement RealFileOperations using fs-extra
-      - [ ] Implement RealScreenshotService using Playwright
-      - [ ] Implement RealFixtureManager with fixture loading
-      - [ ] Use dependency injection pattern (already established)
-      - [ ] Keep mock implementations for tests
-    - [ ] **PRIORITY 4: REFACTOR Phase** (After everything works):
-      - [ ] Extract shared patterns (ViewContainer component)
-      - [ ] Create useWorkflowTransitions hook
-      - [ ] Consolidate duplicate type definitions
-      - [ ] Maintain 100% test pass rate (165+ tests) throughout
-      - [ ] Keep all files under 201 lines
-- 🎯 **CURRENT FOCUS**: Ready to start AnnotateApp TDD cycle (Priority 1) - see Q&A.md "Next Steps Planning" section for detailed approach
+  - ✅ **AnnotateApp Component COMPLETE** (TDD RED → GREEN → REFACTOR cycle):
+    - ✅ **Phase 1 (RED)**: Wrote 33 failing integration tests split into 4 files:
+      - ✅ `annotate-app-tools.test.tsx` (10 tests) - Canvas tool interactions
+      - ✅ `annotate-app-annotations.test.tsx` (8 tests) - Annotation CRUD operations
+      - ✅ `annotate-app-publish.test.tsx` (9 tests) - Publish workflow
+      - ✅ `annotate-app-errors.test.tsx` (6 tests) - Error scenarios
+    - ✅ **Phase 2 (GREEN)**: Built minimal AnnotateApp implementation:
+      - ✅ Reused Core components (Button, Layout, Sidebar, TextArea, ToolbarStack)
+      - ✅ Created Annotate-specific components (AnnotationForm, AnnotationList, ColorPicker, ErrorDisplay, PublishDialog, ToolPalette)
+      - ✅ Integrated Fabric.js canvas for drawing tools
+      - ✅ All components under 201 lines (AnnotateApp.tsx was 252 lines before refactor)
+      - ✅ 100% testId usage - ZERO text-based queries
+    - ✅ **Phase 3 (REFACTOR)**: Refactored AnnotateApp from 252 → 139 lines:
+      - ✅ Extracted `useAnnotationManagement` hook (123 lines) - annotation state & CRUD handlers
+      - ✅ Extracted `useCanvasTools` hook (68 lines) - canvas state & Fabric.js integration
+      - ✅ Extracted `usePublishWorkflow` hook (43 lines) - publish dialog workflow
+      - ✅ All hooks follow Single Responsibility Principle
+      - ✅ Made ToolbarArea component polymorphic (default: `section` element)
+    - ✅ **100% test pass rate**: 198/198 tests passing (33 new AnnotateApp tests)
+    - ✅ **Zero TypeScript errors** across all files
+- 🚀 **SERVICE INTEGRATION COMPLETE** (PRIORITY 3):
+  - ✅ **Consolidated FileOperations Interface**:
+    - ✅ Created shared `src/types/file-operations.ts` interface
+    - ✅ Unified two conflicting interfaces from FixtureManager and ScreenshotCaptureService
+    - ✅ FileStorage now implements complete interface
+  - ✅ **Enhanced FileStorage with TDD**:
+    - ✅ Phase 1 (RED): Wrote 11 unit tests for new methods
+    - ✅ Phase 2 (GREEN): Implemented `ensureDir()` and `remove()` methods
+    - ✅ Used `fs/promises` (Node.js built-in) instead of `fs-extra`
+    - ✅ All 11 tests passing
+  - ✅ **ServiceFactory Module** (`src/core/service-factory.ts` - 110 lines):
+    - ✅ Clean dependency injection pattern
+    - ✅ Wires all services from plugin configuration
+    - ✅ Manages browser singleton (Playwright)
+    - ✅ Factory methods for all services (ScreenshotService, FileStorage, FixtureManager)
+  - ✅ **Simplified screenshot-handler** (81 → 49 lines):
+    - ✅ Now uses ServiceFactory for all service creation
+    - ✅ Much cleaner, more maintainable code
+  - ✅ **Dependency Cleanup**:
+    - ✅ Removed unused `fs-extra` from package.json (5 dependencies now, was 6)
+    - ✅ Removed `@types/fs-extra` from devDependencies
+    - ✅ Updated CLAUDE.md to document `fs/promises` usage
+    - ✅ Removed `fs-extra` mock from test setup
+  - ✅ **Architecture**: Plugin Config → ServiceFactory → All Services (FileStorage, FixtureManager, ScreenshotService)
+  - ✅ **100% test pass rate**: 209/209 tests passing (11 new FileStorage tests)
+  - ✅ **Zero TypeScript errors** across entire codebase
+- 📝 **Remaining Priorities**:
+  - [ ] **PRIORITY 4: REFACTOR Phase** (Polish & consolidation):
+    - [ ] Extract shared patterns if any duplication found
+    - [ ] Create additional reusable hooks if beneficial
+    - [ ] Consolidate duplicate type definitions if found
+    - [ ] Maintain 100% test pass rate (209 tests) throughout
+    - [ ] Keep all files under 201 lines
+- 🎯 **CURRENT STATUS**: AnnotateApp & Service Integration COMPLETE - Ready for final REFACTOR phase or production deployment
 
 ## Blockers & Questions
 

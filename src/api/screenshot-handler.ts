@@ -1,29 +1,16 @@
-import { chromium, Browser } from 'playwright';
-import { ScreenshotCaptureService } from '@/screenshot/screenshot-capture-service';
-import { FixtureManager } from '@/core/fixture-manager';
-import { createFileOperations } from '@/core/file-storage';
+import { createServiceFactory } from '@/core/service-factory';
 import type { CaptureRequest } from '@/types/screenshot';
 import type { ProtoboothConfig } from '@/types/config';
 
-let browserInstance: Browser | null = null;
-
-/**
- * Get or create a browser instance (singleton pattern)
- */
-async function getBrowser(): Promise<Browser> {
-  if (!browserInstance) {
-    browserInstance = await chromium.launch({ headless: true });
-  }
-  return browserInstance;
-}
+// Singleton service factory instance
+let serviceFactory: ReturnType<typeof createServiceFactory> | null = null;
 
 /**
  * Close the browser instance
  */
 export async function closeBrowser(): Promise<void> {
-  if (browserInstance) {
-    await browserInstance.close();
-    browserInstance = null;
+  if (serviceFactory) {
+    await serviceFactory.closeBrowser();
   }
 }
 
@@ -44,36 +31,18 @@ export async function handleScreenshotCapture(
   }>;
   outputDirectory?: string;
 }> {
-  const outputDir = config.outputDir || '.protobooth/screenshots';
-  const viewports = config.viewports || [
-    { name: 'mobile', width: 375, height: 667 },
-    { name: 'desktop', width: 1440, height: 900 }
-  ];
-
-  // Create file operations
-  const fileOperations = createFileOperations(projectRoot);
-
-  // Create fixture manager
-  const fixtureManager = new FixtureManager(fileOperations);
-  if (config.fixtures) {
-    await fixtureManager.setFixtures(config.fixtures);
+  // Create or reuse service factory
+  if (!serviceFactory) {
+    serviceFactory = createServiceFactory(projectRoot, config);
   }
 
-  // Get browser instance
-  const browser = await getBrowser();
-
   // Create screenshot service
-  const screenshotService = new ScreenshotCaptureService({
-    browser,
-    outputDir,
-    viewports,
-    fixtureManager,
-    fileOperations
-  });
+  const screenshotService = await serviceFactory.createScreenshotService();
 
   // Capture screenshots
   const result = await screenshotService.captureRoutes(request);
 
+  const outputDir = config.outputDir || '.protobooth/screenshots';
   return {
     screenshots: result.screenshots,
     outputDirectory: outputDir
