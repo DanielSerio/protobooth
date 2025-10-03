@@ -41,11 +41,15 @@ export class DefaultRouteDiscovery implements RouteDiscovery {
 
   async discoverRoutes(projectPath: string): Promise<DiscoveredRouteWithFixtures[]> {
     try {
-      // Mock implementation - in reality would use ViteRouterDiscovery/NextjsRouterDiscovery
-      const content = await this.fileOps.readFile(path.join(projectPath, 'routes.json'));
+      // Read routes.json directly from project root using Node's fs
+      // (fileOps is for .protobooth/ files, not arbitrary paths)
+      const fs = await import('fs/promises');
+      const routesPath = path.join(projectPath, 'routes.json');
+      const content = await fs.readFile(routesPath, 'utf-8');
       const data = JSON.parse(content);
       return [...(data.routes || []), ...(data.appRouter || []), ...(data.pagesRouter || [])];
     } catch (error) {
+      console.error('[Protobooth] Route discovery error:', error);
       throw new Error('Failed to discover routes');
     }
   }
@@ -127,10 +131,9 @@ export class DefaultRequestValidator implements RequestValidator {
   constructor(private fileOps: FileOperations) {}
 
   async validate(request: CaptureRequest): Promise<void> {
-    // Check if project path exists
-    if (!(await this.fileOps.fileExists(request.projectPath))) {
-      throw new Error('Project path does not exist');
-    }
+    // Note: Skip project path existence check when running on server
+    // The server already knows its project root exists
+    // (fileOps.fileExists is for files in .protobooth/, not absolute paths)
 
     // Validate router type
     if (!['vite', 'nextjs'].includes(request.routerType)) {

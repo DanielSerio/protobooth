@@ -1,11 +1,8 @@
-import Script from 'next/script';
+import { createNextApiHandler } from 'protobooth/next';
+import { NextRequest } from 'next/server';
 
-export const metadata = {
-  title: 'Protobooth - Development',
-};
-
+// Protobooth configuration matching next.config.js
 const protoboothConfig = {
-  apiBasePath: '/api/protobooth',
   fixtures: {
     auth: {
       authenticated: {
@@ -47,33 +44,18 @@ const protoboothConfig = {
   ]
 };
 
-export default function ProtoboothResolve() {
-  return (
-    <>
-      <link rel="stylesheet" href="/protobooth/assets/style.css" />
-      <div id="protobooth-root"></div>
+// Create the API handler with config
+const apiHandler = createNextApiHandler(protoboothConfig);
 
-      {/* Load React and ReactDOM from CDN */}
-      <Script
-        src="https://unpkg.com/react@18/umd/react.production.min.js"
-        strategy="beforeInteractive"
-      />
-      <Script
-        src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
-        strategy="beforeInteractive"
-      />
+// Export HTTP method handlers
+export async function GET(req: NextRequest, context: { params: { path: string[] } }) {
+  return apiHandler(req, context) as Promise<Response>;
+}
 
-      {/* Inject config */}
-      <Script
-        id="protobooth-config"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `window.__PROTOBOOTH_CONFIG__ = ${JSON.stringify(protoboothConfig)};`,
-        }}
-      />
+export async function POST(req: NextRequest, context: { params: { path: string[] } }) {
+  return apiHandler(req, context) as Promise<Response>;
+}
 
-      {/* Load Protobooth UI */}
-      <Script src="/protobooth/assets/app.js" strategy="afterInteractive" />
-    </>
-  );
+export async function HEAD(req: NextRequest, context: { params: { path: string[] } }) {
+  return apiHandler(req, context) as Promise<Response>;
 }

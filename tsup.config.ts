@@ -14,6 +14,7 @@ export default defineConfig({
     'react-dom',
     'vite',
     'next',
+    'next/server',
     '@tanstack/react-router'
   ],
   target: 'node18'

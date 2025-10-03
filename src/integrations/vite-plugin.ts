@@ -5,6 +5,7 @@ import type { ViewportConfig } from '@/types/screenshot';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises';
+import { createViteApiHandler } from './vite-api-handler';
 
 export interface VitePluginOptions {
   fixtures?: FixtureConfig;
@@ -221,52 +222,20 @@ export function createVitePlugin(options: VitePluginOptions = {}): Plugin & {
             return handleAnnotateRoute(req, res, { fixtures, viewports });
           } else if (url.startsWith('/assets/')) {
             return handleStaticAssets(req, res, url);
-          } else if (url.startsWith('/api/files/')) {
-            // Handle file API requests
-            const filename = decodeURIComponent(url.replace('/api/files/', ''));
-            const projectRoot = viteConfig?.root || process.cwd();
-            const filePath = path.join(projectRoot, filename);
-
-            if (req.method === 'GET') {
-              try {
-                const content = await fs.readFile(filePath, 'utf-8');
-                res.setHeader('Content-Type', 'text/plain');
-                res.end(content);
-              } catch (error) {
-                res.writeHead(404);
-                res.end(JSON.stringify({ error: 'File not found' }));
-              }
-            } else if (req.method === 'HEAD') {
-              try {
-                await fs.access(filePath);
-                res.writeHead(200);
-                res.end();
-              } catch (error) {
-                res.writeHead(404);
-                res.end();
-              }
-            } else if (req.method === 'POST') {
-              let body = '';
-              req.on('data', chunk => { body += chunk; });
-              req.on('end', async () => {
-                try {
-                  const { content } = JSON.parse(body);
-                  await fs.writeFile(filePath, content, 'utf-8');
-                  res.writeHead(200);
-                  res.end(JSON.stringify({ success: true }));
-                } catch (error) {
-                  res.writeHead(500);
-                  res.end(JSON.stringify({ error: 'Failed to write file' }));
-                }
-              });
-            } else {
-              res.writeHead(405);
-              res.end();
+          } else if (url.startsWith('/api/')) {
+            // Create API handler lazily to ensure viteConfig is available
+            if (!viteConfig) {
+              console.error('Protobooth: viteConfig not initialized');
+              res.writeHead(500);
+              res.end(JSON.stringify({ error: 'Server not ready' }));
+              return;
             }
-            return;
-          } else {
-            next();
+            const apiHandler = createViteApiHandler({ fixtures, viewports }, viteConfig);
+            const handled = await apiHandler(req, res, url);
+            if (handled) return;
           }
+
+          next();
         } catch (error) {
           console.warn('Protobooth middleware error:', error);
           next();

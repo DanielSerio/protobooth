@@ -46,9 +46,8 @@ export function useResolveHandlers({
 
       try {
         await captureScreenshots({
-          appUrl: 'http://localhost:5173',
-          projectPath: '/demo/project',
-          routerType: 'vite',
+          appUrl: window.location.origin,
+          routerType: 'vite', // TODO: detect from config
           authState: 'authenticated',
         });
 

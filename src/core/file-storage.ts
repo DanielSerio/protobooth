@@ -49,8 +49,15 @@ export class FileStorage implements FileOperations {
     try {
       await fs.writeFile(filePath, content, 'utf-8');
     } catch (error) {
-      console.error('Failed to write file:', error);
-      throw new Error(`Failed to write file: ${filename}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Failed to write file:', {
+        filename,
+        filePath,
+        storageDir: this.storageDir,
+        error: errorMessage,
+        fullError: error
+      });
+      throw new Error(`Failed to write file: ${filename} - ${errorMessage}`);
     }
   }
 

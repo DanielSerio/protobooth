@@ -20,7 +20,7 @@ export type Screenshot = ScreenshotResult;
 
 export interface CaptureRequest {
   appUrl: string;
-  projectPath: string;
+  projectPath?: string; // Optional - server will use its own project root if not provided
   routerType: 'vite' | 'nextjs';
   authState: 'authenticated' | 'unauthenticated';
   includeGlobalState?: boolean;

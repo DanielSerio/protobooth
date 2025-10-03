@@ -34,6 +34,7 @@ export function ResolveApp({
     workflowState,
     isLoading: isStateLoading,
     error: stateError,
+    lastCaptureResult: persistedCaptureResult,
     updateWorkflowState,
     resetWorkflow,
   } = useWorkflowState({ fileOperations });
@@ -91,6 +92,9 @@ export function ResolveApp({
       );
     }
 
+    // Use persisted result if available, otherwise use live result from screenshot hook
+    const effectiveLastCaptureResult = lastCaptureResult || persistedCaptureResult;
+
     switch (workflowState) {
       case 'in-development':
         return (
@@ -106,7 +110,9 @@ export function ResolveApp({
         return (
           <ReviewsRequestedView
             captureProgress={captureProgress}
-            lastCaptureResult={lastCaptureResult}
+            lastCaptureResult={effectiveLastCaptureResult}
+            isCapturing={isCapturing}
+            onRecapture={handleRequestReview}
           />
         );
 

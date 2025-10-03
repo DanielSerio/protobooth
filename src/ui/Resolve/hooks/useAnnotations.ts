@@ -15,7 +15,7 @@ export function useAnnotations(options: UseAnnotationsOptions) {
   const [error, setError] = useState<string | null>(null);
   const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
 
-  const annotationsFilePath = 'protobooth-annotations.json';
+  const annotationsFilePath = 'annotations.json';
 
   const loadAnnotations = useCallback(async () => {
     try {

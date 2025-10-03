@@ -5,8 +5,10 @@ export type WorkflowState = 'in-development' | 'reviews-requested' | 'in-review'
 export interface WorkflowStateData {
   state: WorkflowState;
   timestamp: string;
-  lastScreenshotPath?: string;
-  sessionId?: string;
+  lastCaptureResult?: {
+    screenshotCount: number;
+    outputPath: string;
+  };
 }
 
 interface UseWorkflowStateOptions {
@@ -22,8 +24,9 @@ export function useWorkflowState(options: UseWorkflowStateOptions) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [lastCaptureResult, setLastCaptureResult] = useState<{ screenshotCount: number; outputPath: string } | null>(null);
 
-  const stateFilePath = 'protobooth-workflow-state.json';
+  const stateFilePath = 'workflow-state.json';
 
   const loadWorkflowState = useCallback(async () => {
     try {
@@ -42,6 +45,7 @@ export function useWorkflowState(options: UseWorkflowStateOptions) {
 
       setWorkflowState(stateData.state);
       setLastUpdated(stateData.timestamp);
+      setLastCaptureResult(stateData.lastCaptureResult || null);
     } catch (err) {
       console.error('Failed to load workflow state:', err);
       setError('Failed to load workflow state');
@@ -66,6 +70,7 @@ export function useWorkflowState(options: UseWorkflowStateOptions) {
 
       setWorkflowState(newState);
       setLastUpdated(timestamp);
+      setLastCaptureResult(stateData.lastCaptureResult || null);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       console.error('Failed to save workflow state:', err);
@@ -88,6 +93,7 @@ export function useWorkflowState(options: UseWorkflowStateOptions) {
     isLoading,
     error,
     lastUpdated,
+    lastCaptureResult,
     updateWorkflowState,
     resetWorkflow,
     reload: loadWorkflowState
