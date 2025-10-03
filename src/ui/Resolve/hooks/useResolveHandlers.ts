@@ -1,5 +1,6 @@
 import React from 'react';
 import type { CaptureOptions } from '../components/ResolveApp.props';
+import type { ProtoboothConfig } from '@/types/config';
 
 interface CaptureResult {
   success: boolean;
@@ -21,6 +22,7 @@ interface UseResolveHandlersParams {
   captureScreenshots: (options: CaptureOptions) => Promise<CaptureResult>;
   downloadAnnotations: (stagingUrl?: string) => Promise<string | null>;
   resetWorkflow: () => Promise<void>;
+  config?: ProtoboothConfig;
 }
 
 /**
@@ -33,6 +35,7 @@ export function useResolveHandlers({
   captureScreenshots,
   downloadAnnotations,
   resetWorkflow,
+  config,
 }: UseResolveHandlersParams) {
   const handleRequestReview = React.useCallback(async () => {
     try {
@@ -47,7 +50,8 @@ export function useResolveHandlers({
       try {
         await captureScreenshots({
           appUrl: window.location.origin,
-          routerType: 'vite', // TODO: detect from config
+          projectPath: config?.projectPath || process.cwd(),
+          routerType: config?.routerType || 'vite',
           authState: 'authenticated',
         });
 
@@ -61,7 +65,7 @@ export function useResolveHandlers({
     } catch (error) {
       console.error('Failed to request review:', error);
     }
-  }, [getValidationErrors, setValidationErrors, updateWorkflowState, captureScreenshots]);
+  }, [getValidationErrors, setValidationErrors, updateWorkflowState, captureScreenshots, config]);
 
   const handleDownloadAnnotations = React.useCallback(async () => {
     try {

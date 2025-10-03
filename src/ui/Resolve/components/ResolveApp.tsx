@@ -81,6 +81,7 @@ export function ResolveApp({
     captureScreenshots,
     downloadAnnotations,
     resetWorkflow,
+    config,
   });
 
   const renderWorkflowContent = () => {

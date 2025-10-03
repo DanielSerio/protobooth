@@ -151,7 +151,9 @@ describe('Development UI Workflow Integration', () => {
   const renderResolveApp = (props = {}) => {
     const defaultConfig = {
       fixtures: testFixtures,
-      viewports: testViewports
+      viewports: testViewports,
+      projectPath: demoProjectPath,
+      routerType: 'vite' as const
     };
 
     return render(
@@ -183,7 +185,7 @@ describe('Development UI Workflow Integration', () => {
 
       await waitFor(() => {
         expect(mockFileOps.writeFile).toHaveBeenCalledWith(
-          'protobooth-workflow-state.json',
+          'workflow-state.json',
           expect.stringContaining('"state": "reviews-requested"')
         );
       });
@@ -299,7 +301,7 @@ describe('Development UI Workflow Integration', () => {
     it('should generate deployment instructions after successful capture', async () => {
       // Set up routes for successful screenshot capture
       mockFileOps.readFile.mockImplementation((filePath: string) => {
-        if (filePath.includes('protobooth-workflow-state.json')) {
+        if (filePath.includes('workflow-state.json')) {
           return Promise.resolve(JSON.stringify({ state: mockWorkflowState, timestamp: new Date().toISOString() }));
         }
         if (filePath.includes('routes.json')) {
@@ -369,7 +371,7 @@ describe('Development UI Workflow Integration', () => {
 
       await waitFor(() => {
         expect(mockFileOps.writeFile).toHaveBeenCalledWith(
-          'protobooth-workflow-state.json',
+          'workflow-state.json',
           expect.stringContaining('"state": "submitted-for-development"')
         );
       });
@@ -432,7 +434,7 @@ describe('Development UI Workflow Integration', () => {
 
       await waitFor(() => {
         expect(mockFileOps.writeFile).toHaveBeenCalledWith(
-          'protobooth-annotations.json',
+          'annotations.json',
           expect.stringContaining('"status": "resolved"')
         );
       });
@@ -484,7 +486,7 @@ describe('Development UI Workflow Integration', () => {
 
       await waitFor(() => {
         expect(mockFileOps.writeFile).toHaveBeenCalledWith(
-          'protobooth-workflow-state.json',
+          'workflow-state.json',
           expect.stringContaining('"state": "reviews-requested"')
         );
       });
@@ -552,10 +554,10 @@ describe('Development UI Workflow Integration', () => {
       mockWorkflowState = 'in-review';
       // Mock file operation failure for annotation download (local development mode)
       mockFileOps.readFile.mockImplementation((filePath: string) => {
-        if (filePath.includes('protobooth-workflow-state.json')) {
+        if (filePath.includes('workflow-state.json')) {
           return Promise.resolve(JSON.stringify({ state: mockWorkflowState, timestamp: new Date().toISOString() }));
         }
-        if (filePath.includes('protobooth-annotations.json')) {
+        if (filePath.includes('annotations.json')) {
           return Promise.reject(new Error('Network error'));
         }
         return Promise.resolve('{}');

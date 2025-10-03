@@ -12,6 +12,8 @@ export interface ProtoboothConfig {
   fixtures?: FixtureConfig;
   viewports?: ViewportConfig[];
   outputDir?: string;
+  projectPath?: string;
+  routerType?: 'vite' | 'nextjs';
 }
 
 // Re-export FixtureConfig for convenience
