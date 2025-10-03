@@ -273,7 +273,14 @@ describe('Development UI Workflow Integration', () => {
         return Promise.resolve(true);
       });
 
-      renderResolveApp();
+      // Render without config to test validation
+      render(
+        <ResolveApp
+          fileOperations={mockFileOps}
+          screenshotService={screenshotService}
+          fixtureManager={fixtureManager}
+        />
+      );
 
       const requestReviewButton = await screen.findByTestId('request-review-button');
       fireEvent.click(requestReviewButton);
@@ -340,11 +347,20 @@ describe('Development UI Workflow Integration', () => {
         captureRoutes: vi.fn().mockRejectedValue(new Error('Browser connection failed'))
       };
 
+      // Need to provide config to pass validation
+      const testConfig = {
+        fixtures: testFixtures,
+        viewports: testViewports,
+        projectPath: demoProjectPath,
+        routerType: 'vite' as const
+      };
+
       render(
         <ResolveApp
           fileOperations={mockFileOps}
           screenshotService={failingScreenshotService}
           fixtureManager={fixtureManager}
+          config={testConfig}
         />
       );
 

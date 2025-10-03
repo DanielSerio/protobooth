@@ -14,6 +14,18 @@ describe('ResolveApp - Annotation Download Workflow', () => {
   let mockScreenshotService: ScreenshotService;
   let mockFixtureManager: FixtureManager;
 
+  const testConfig = {
+    fixtures: {
+      auth: {
+        authenticated: { user: { id: '1' }, token: 'test' },
+        unauthenticated: null
+      }
+    },
+    viewports: [{ name: 'desktop', width: 1440, height: 900 }],
+    projectPath: '/test/project',
+    routerType: 'vite' as const
+  };
+
   beforeEach(() => {
     mockFileOps = {
       readFile: vi.fn(),
@@ -43,6 +55,7 @@ describe('ResolveApp - Annotation Download Workflow', () => {
         fileOperations={mockFileOps}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
+        config={testConfig}
       />
     );
 
@@ -74,6 +87,7 @@ describe('ResolveApp - Annotation Download Workflow', () => {
         fileOperations={mockFileOps}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
+        config={testConfig}
       />
     );
 
@@ -107,6 +121,7 @@ describe('ResolveApp - Annotation Download Workflow', () => {
         fileOperations={mockFileOps}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
+        config={testConfig}
       />
     );
 
@@ -137,6 +152,7 @@ describe('ResolveApp - Annotation Download Workflow', () => {
         fileOperations={mockFileOps}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
+        config={testConfig}
       />
     );
 
@@ -147,7 +163,7 @@ describe('ResolveApp - Annotation Download Workflow', () => {
     await user.click(screen.getByTestId('resolve-annotation-ann-1'));
     await waitFor(() => {
       expect(mockFileOps.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('protobooth-annotations.json'),
+        expect.stringContaining('annotations.json'),
         expect.stringContaining('resolved')
       );
     });

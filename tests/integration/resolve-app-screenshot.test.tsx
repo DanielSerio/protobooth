@@ -14,6 +14,18 @@ describe('ResolveApp - Screenshot Capture Workflow', () => {
   let mockScreenshotService: ScreenshotService;
   let mockFixtureManager: FixtureManager;
 
+  const testConfig = {
+    fixtures: {
+      auth: {
+        authenticated: { user: { id: '1' }, token: 'test' },
+        unauthenticated: null
+      }
+    },
+    viewports: [{ name: 'desktop', width: 1440, height: 900 }],
+    projectPath: '/test/project',
+    routerType: 'vite' as const
+  };
+
   beforeEach(() => {
     mockFileOps = {
       readFile: vi.fn(),
@@ -77,6 +89,7 @@ describe('ResolveApp - Screenshot Capture Workflow', () => {
         fileOperations={mockFileOps}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
+        config={testConfig}
       />
     );
 
@@ -120,6 +133,7 @@ describe('ResolveApp - Screenshot Capture Workflow', () => {
     render(
       <ResolveApp
         fileOperations={mockFileOps}
+        config={testConfig}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
       />

@@ -14,6 +14,18 @@ describe('ResolveApp - Workflow State Transitions', () => {
   let mockScreenshotService: ScreenshotService;
   let mockFixtureManager: FixtureManager;
 
+  const testConfig = {
+    fixtures: {
+      auth: {
+        authenticated: { user: { id: '1' }, token: 'test' },
+        unauthenticated: null
+      }
+    },
+    viewports: [{ name: 'desktop', width: 1440, height: 900 }],
+    projectPath: '/test/project',
+    routerType: 'vite' as const
+  };
+
   beforeEach(() => {
     mockFileOps = {
       readFile: vi.fn(),
@@ -39,6 +51,7 @@ describe('ResolveApp - Workflow State Transitions', () => {
         fileOperations={mockFileOps}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
+        config={testConfig}
       />
     );
 
@@ -64,6 +77,7 @@ describe('ResolveApp - Workflow State Transitions', () => {
         fileOperations={mockFileOps}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
+        config={testConfig}
       />
     );
 
@@ -98,6 +112,7 @@ describe('ResolveApp - Workflow State Transitions', () => {
         fileOperations={mockFileOps}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
+        config={testConfig}
       />
     );
 
@@ -117,7 +132,7 @@ describe('ResolveApp - Workflow State Transitions', () => {
     });
 
     expect(mockFileOps.writeFile).toHaveBeenCalledWith(
-      expect.stringContaining('protobooth-workflow-state.json'),
+      expect.stringContaining('workflow-state.json'),
       expect.stringContaining('reviews-requested')
     );
   });
@@ -138,6 +153,7 @@ describe('ResolveApp - Workflow State Transitions', () => {
         fileOperations={mockFileOps}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
+        config={testConfig}
       />
     );
 

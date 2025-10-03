@@ -14,6 +14,18 @@ describe('ResolveApp - Error Handling', () => {
   let mockScreenshotService: ScreenshotService;
   let mockFixtureManager: FixtureManager;
 
+  const testConfig = {
+    fixtures: {
+      auth: {
+        authenticated: { user: { id: '1' }, token: 'test' },
+        unauthenticated: null
+      }
+    },
+    viewports: [{ name: 'desktop', width: 1440, height: 900 }],
+    projectPath: '/test/project',
+    routerType: 'vite' as const
+  };
+
   beforeEach(() => {
     mockFileOps = {
       readFile: vi.fn(),
@@ -40,6 +52,7 @@ describe('ResolveApp - Error Handling', () => {
         fileOperations={mockFileOps}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
+        config={testConfig}
       />
     );
 
@@ -65,6 +78,7 @@ describe('ResolveApp - Error Handling', () => {
         fileOperations={mockFileOps}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
+        config={testConfig}
       />
     );
 
@@ -82,6 +96,7 @@ describe('ResolveApp - Error Handling', () => {
         fileOperations={mockFileOps}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
+        config={testConfig}
       />
     );
 
@@ -107,6 +122,7 @@ describe('ResolveApp - Error Handling', () => {
         fileOperations={mockFileOps}
         screenshotService={mockScreenshotService}
         fixtureManager={mockFixtureManager}
+        config={testConfig}
       />
     );
 
@@ -119,7 +135,7 @@ describe('ResolveApp - Error Handling', () => {
 
     await waitFor(() => {
       expect(mockFileOps.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('protobooth-workflow-state.json'),
+        expect.stringContaining('workflow-state.json'),
         expect.stringContaining('in-development')
       );
     });
