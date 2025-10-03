@@ -1,0 +1,22 @@
+[class$='-card'] {
+  padding: 24px;
+  margin: 24px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--border-color);
+  border-radius: 3px;
+  background-color: var(--panel-background);
+}
+
+.error-card {
+  border-color: var(--color-red-300);
+  background-color: var(--color-red-50);
+  color: var(--color-red-700);
+
+  ul {
+    background-color: var(--color-zinc-700);
+    color: var(--color-red-50);
+    padding: 6px;
+    border-radius: 3px;
+  }
+}
