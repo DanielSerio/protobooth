@@ -56,7 +56,6 @@ describe('Screenshot Capture Integration', () => {
   beforeAll(async () => {
     // Mock browser with essential methods
     const mockPage = {
-      setViewportSize: vi.fn().mockResolvedValue(undefined),
       goto: vi.fn().mockResolvedValue(undefined),
       evaluate: vi.fn().mockResolvedValue(undefined),
       reload: vi.fn().mockResolvedValue(undefined),
@@ -64,8 +63,13 @@ describe('Screenshot Capture Integration', () => {
       close: vi.fn().mockResolvedValue(undefined)
     };
 
-    mockBrowser = {
+    const mockContext = {
       newPage: vi.fn().mockResolvedValue(mockPage),
+      close: vi.fn().mockResolvedValue(undefined)
+    };
+
+    mockBrowser = {
+      newContext: vi.fn().mockResolvedValue(mockContext),
       close: vi.fn().mockResolvedValue(undefined)
     };
 
@@ -292,7 +296,6 @@ describe('Screenshot Capture Integration', () => {
     it('should handle app server not running', async () => {
       // Configure mock to reject goto calls
       const mockPage = {
-        setViewportSize: vi.fn().mockResolvedValue(undefined),
         goto: vi.fn().mockRejectedValue(new Error('net::ERR_CONNECTION_REFUSED')),
         evaluate: vi.fn().mockResolvedValue(undefined),
         reload: vi.fn().mockResolvedValue(undefined),
@@ -300,8 +303,13 @@ describe('Screenshot Capture Integration', () => {
         close: vi.fn().mockResolvedValue(undefined)
       };
 
-      const failingBrowser = {
+      const mockContext = {
         newPage: vi.fn().mockResolvedValue(mockPage),
+        close: vi.fn().mockResolvedValue(undefined)
+      };
+
+      const failingBrowser = {
+        newContext: vi.fn().mockResolvedValue(mockContext),
         close: vi.fn().mockResolvedValue(undefined)
       };
 

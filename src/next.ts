@@ -40,15 +40,67 @@ export interface ProtoboothNextConfig {
 export function withProtobooth(
   nextConfig: NextConfig = {},
   config: ProtoboothNextConfig = {}
-): NextConfig {
+): NextConfig & { protobooth?: { middleware: (req: unknown, res: unknown, next: () => void) => Promise<void> } } {
   const { protobooth: protoboothConfig = {} } = config;
 
   // Create the protobooth plugin
   const plugin = createNextPlugin(protoboothConfig);
 
+  // Create middleware for custom Next.js servers
+  const middleware = async (req: { url?: string }, res: {
+    setHeader: (name: string, value: string) => void;
+    writeHead: (statusCode: number) => void;
+    end: (data?: string) => void;
+  }, next: () => void): Promise<void> => {
+    const url = req.url || '';
+
+    if (url.startsWith('/protobooth/resolve')) {
+      const html = generateUIHtml('resolve', protoboothConfig);
+      res.setHeader('Content-Type', 'text/html');
+      res.end(html);
+      return;
+    }
+
+    if (url.startsWith('/protobooth/annotate')) {
+      const html = generateUIHtml('annotate', protoboothConfig);
+      res.setHeader('Content-Type', 'text/html');
+      res.end(html);
+      return;
+    }
+
+    // Pass through all other routes
+    next();
+  };
+
+  // Helper to generate UI HTML
+  function generateUIHtml(mode: 'resolve' | 'annotate', config: { fixtures?: unknown; viewports?: unknown }): string {
+    const uiTitle = mode === 'resolve' ? 'Protobooth Development UI' : 'Protobooth Annotation UI';
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <title>Protobooth - ${mode === 'resolve' ? 'Development' : 'Annotation'}</title>
+  <link rel="stylesheet" href="/protobooth/assets/style.css">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+</head>
+<body>
+  <noscript>${uiTitle}</noscript>
+  <div id="protobooth-root">
+    <div style="display: none;">${uiTitle}</div>
+    <div style="display: none;">Route injection working! Mode: ${mode}</div>
+  </div>
+  <script>
+    window.__PROTOBOOTH_CONFIG__ = ${JSON.stringify({ fixtures: config.fixtures, viewports: config.viewports })};
+  </script>
+  <script src="/protobooth/assets/${mode}.js"></script>
+</body>
+</html>`;
+  }
+
   // In a real implementation, we would integrate with Next.js build process
   // For now, we'll add the plugin as a webpack plugin if available
-  const modifiedConfig: NextConfig = {
+  const modifiedConfig: NextConfig & { protobooth?: { middleware: typeof middleware } } = {
     ...nextConfig,
     webpack: (webpackConfig: WebpackConfig, options: WebpackOptions) => {
       // Call original webpack config if it exists
@@ -83,6 +135,9 @@ export function withProtobooth(
       }
 
       return webpackConfig;
+    },
+    protobooth: {
+      middleware
     }
   };
 

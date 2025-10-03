@@ -225,9 +225,8 @@ export function createVitePlugin(options: VitePluginOptions = {}): Plugin & {
           } else if (url.startsWith('/api/')) {
             // Create API handler lazily to ensure viteConfig is available
             if (!viteConfig) {
-              console.error('Protobooth: viteConfig not initialized');
-              res.writeHead(500);
-              res.end(JSON.stringify({ error: 'Server not ready' }));
+              // viteConfig not ready, pass through to application
+              next();
               return;
             }
             const apiHandler = createViteApiHandler({ fixtures, viewports }, viteConfig);

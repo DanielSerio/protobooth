@@ -1,42 +1,15 @@
 {
-  "routes": [
-    {
-      "path": "/blog/[slug]/page",
-      "isDynamic": true,
-      "parameters": [
-        "slug"
-      ],
-      "filePath": "C:\\developer\\protobooth\\demos\\nextjs\\src\\app\\blog\\[slug]\\page.tsx"
-    },
-    {
-      "path": "/layout",
-      "isDynamic": false,
-      "filePath": "C:\\developer\\protobooth\\demos\\nextjs\\src\\app\\layout.tsx"
-    },
-    {
-      "path": "/page",
-      "isDynamic": false,
-      "filePath": "C:\\developer\\protobooth\\demos\\nextjs\\src\\app\\page.tsx"
-    },
-    {
-      "path": "/user/[id]/page",
-      "isDynamic": true,
-      "parameters": [
-        "id"
-      ],
-      "filePath": "C:\\developer\\protobooth\\demos\\nextjs\\src\\app\\user\\[id]\\page.tsx"
-    }
-  ],
+  "routes": [],
   "fixtures": {
     "auth": {
       "authenticated": {
         "user": {
           "id": "1",
           "name": "Next.js Demo User",
-          "email": "demo@example.com",
+          "email": "nextjs@example.com",
           "role": "admin"
         },
-        "token": "demo-auth-token-123",
+        "token": "test-token",
         "permissions": [
           "read",
           "write",
@@ -56,33 +29,18 @@
           "id": "2",
           "name": "Bob Smith",
           "role": "admin"
-        },
-        {
-          "id": "3",
-          "name": "Carol Davis",
-          "role": "moderator"
         }
       ],
       "/blog/[slug]": [
         {
           "slug": "getting-started",
-          "title": "Getting Started with Next.js",
-          "author": "John Doe"
+          "title": "Getting Started with Next.js"
         },
         {
           "slug": "advanced-routing",
-          "title": "Advanced Routing Patterns",
-          "author": "Jane Smith"
+          "title": "Advanced Routing Patterns"
         }
       ]
-    },
-    "globalState": {
-      "theme": "dark",
-      "language": "en",
-      "featureFlags": {
-        "newLayout": true,
-        "experimentalFeatures": true
-      }
     }
   },
   "viewports": [
@@ -92,15 +50,10 @@
       "height": 667
     },
     {
-      "name": "tablet",
-      "width": 768,
-      "height": 1024
-    },
-    {
       "name": "desktop",
       "width": 1440,
       "height": 900
     }
   ],
-  "timestamp": "2025-10-03T13:23:33.228Z"
+  "timestamp": "2025-10-03T17:02:43.801Z"
 }

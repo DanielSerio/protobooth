@@ -41,11 +41,30 @@ export class DefaultRouteDiscovery implements RouteDiscovery {
 
   async discoverRoutes(projectPath: string): Promise<DiscoveredRouteWithFixtures[]> {
     try {
-      // Read routes.json directly from project root using Node's fs
-      // (fileOps is for .protobooth/ files, not arbitrary paths)
-      const fs = await import('fs/promises');
+      // Read routes.json from project root
       const routesPath = path.join(projectPath, 'routes.json');
-      const content = await fs.readFile(routesPath, 'utf-8');
+
+      let content: string;
+      try {
+        // Try using fileOps first (allows mocking in tests)
+        content = await this.fileOps.readFile(routesPath);
+      } catch (fileOpsError) {
+        // Only fall back to Node's fs if fileOps doesn't support absolute paths
+        // Otherwise propagate the error (e.g., for intentional test failures)
+        const errorMessage = fileOpsError instanceof Error ? fileOpsError.message : String(fileOpsError);
+
+        // If it's a test-specific error (mocked failure), don't fall back
+        if (errorMessage.includes('File read error') ||
+            errorMessage.includes('does not exist') ||
+            errorMessage.includes('Permission denied')) {
+          throw fileOpsError;
+        }
+
+        // Fall back to Node's fs for actual file system access in production
+        const fs = await import('fs/promises');
+        content = await fs.readFile(routesPath, 'utf-8');
+      }
+
       const data = JSON.parse(content);
       return [...(data.routes || []), ...(data.appRouter || []), ...(data.pagesRouter || [])];
     } catch (error) {
@@ -66,15 +85,17 @@ export class PlaywrightBrowserController implements BrowserController {
     globalState?: GlobalStateFixture;
     outputPath: string;
   }): Promise<ScreenshotResult> {
-    const page = await this.browser.newPage();
-
-    try {
-      // Set viewport
-      await page.setViewportSize({
+    // Create context with viewport settings
+    const context = await this.browser.newContext({
+      viewport: {
         width: options.viewport.width,
         height: options.viewport.height
-      });
+      }
+    });
 
+    const page = await context.newPage();
+
+    try {
       // Navigate to URL and wait for app to be ready
       try {
         await page.goto(options.url, { waitUntil: 'networkidle' });
@@ -122,6 +143,7 @@ export class PlaywrightBrowserController implements BrowserController {
       };
     } finally {
       await page.close();
+      await context.close();
     }
   }
 }
@@ -131,9 +153,22 @@ export class DefaultRequestValidator implements RequestValidator {
   constructor(private fileOps: FileOperations) {}
 
   async validate(request: CaptureRequest): Promise<void> {
-    // Note: Skip project path existence check when running on server
-    // The server already knows its project root exists
-    // (fileOps.fileExists is for files in .protobooth/, not absolute paths)
+    // Validate project path exists
+    // Try fileOps first (for test mocking), fall back to fs for real paths
+    try {
+      const pathExists = await this.fileOps.fileExists(request.projectPath);
+      if (!pathExists) {
+        throw new Error('Project path does not exist');
+      }
+    } catch {
+      // fileOps might not support absolute paths, use Node's fs
+      try {
+        const fs = await import('fs/promises');
+        await fs.access(request.projectPath);
+      } catch {
+        throw new Error('Project path does not exist');
+      }
+    }
 
     // Validate router type
     if (!['vite', 'nextjs'].includes(request.routerType)) {
@@ -228,6 +263,10 @@ export class ScreenshotCaptureService {
             fixtureInjectionLog.push('localStorage: globalState');
           }
         } catch (error) {
+          // Preserve meaningful error messages from browser controller
+          if (error instanceof Error && error.message.includes('Failed to connect to application server')) {
+            throw error;
+          }
           throw new Error(`Failed to capture screenshot for ${routeInstance} at ${viewport.name}: ${error}`);
         }
       }

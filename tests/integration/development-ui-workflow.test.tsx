@@ -79,7 +79,6 @@ describe('Development UI Workflow Integration', () => {
 
     // Mock browser for screenshot capture
     const mockPage = {
-      setViewportSize: vi.fn().mockResolvedValue(undefined),
       goto: vi.fn().mockResolvedValue(undefined),
       evaluate: vi.fn().mockResolvedValue(undefined),
       reload: vi.fn().mockResolvedValue(undefined),
@@ -87,8 +86,13 @@ describe('Development UI Workflow Integration', () => {
       close: vi.fn().mockResolvedValue(undefined)
     };
 
-    mockBrowser = {
+    const mockContext = {
       newPage: vi.fn().mockResolvedValue(mockPage),
+      close: vi.fn().mockResolvedValue(undefined)
+    };
+
+    mockBrowser = {
+      newContext: vi.fn().mockResolvedValue(mockContext),
       close: vi.fn().mockResolvedValue(undefined)
     };
 
@@ -145,11 +149,17 @@ describe('Development UI Workflow Integration', () => {
 
   // Helper function to render ResolveApp with all required props
   const renderResolveApp = (props = {}) => {
+    const defaultConfig = {
+      fixtures: testFixtures,
+      viewports: testViewports
+    };
+
     return render(
       <ResolveApp
         fileOperations={mockFileOps}
         screenshotService={screenshotService}
         fixtureManager={fixtureManager}
+        config={defaultConfig}
         {...props}
       />
     );
