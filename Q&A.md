@@ -1,542 +1,544 @@
-# Q&A - Protobooth
+# Q&A - Protobooth Development Decisions
 
-Common questions about protobooth design decisions, usage, and philosophy.
+This document captures key architectural and implementation questions with recommended answers based on protobooth's core principles.
 
-## Project Philosophy
+## Core Principles (Always Consider First)
 
-### Q: Why create protobooth when tools like Storybook, Percy, and Chromatic exist?
-
-**A:** Protobooth serves a different purpose. Those tools are designed for **component libraries** and **long-term visual regression testing**. Protobooth is specifically designed for the **prototype-to-client review workflow** during early development phases. Key differences:
-
-- **Disposable by design** - Self-destructs when you're done prototyping
-- **Route-based** - Captures full page flows, not isolated components
-- **Client-facing** - Optimized for non-technical stakeholder feedback
-- **Zero infrastructure** - No accounts, no cloud services, no ongoing costs
-- **Fixture-first** - Built around mock data for consistent reviews
-
-Once your prototype graduates to a real application, you remove protobooth and switch to proper staging environments and visual regression tools.
-
-### Q: Why is protobooth "disposable"? Isn't that wasteful?
-
-**A:** The disposable nature is a **feature, not a limitation**. Prototypes are temporary by definition. Protobooth acknowledges this reality:
-
-- **No technical debt** - You're not maintaining infrastructure for a prototype phase
-- **Clear boundaries** - When prototyping ends, cleanup is explicit
-- **Honest tooling** - It doesn't pretend your prototype code is production-ready
-- **Fast iteration** - No need to architect for longevity during exploration
-
-The `npx protobooth cleanup` command archives feedback data and removes all protobooth code, leaving you with a clean transition path to production architecture.
-
-### Q: Why the 201-line file size limit? Isn't that arbitrary?
-
-**A:** The 201-line limit enforces **simplicity and modularity** as core architectural constraints:
-
-- **Forces decomposition** - You can't create monolithic files
-- **Improves readability** - Every file fits comfortably on one screen
-- **Encourages SOLID** - Single Responsibility becomes natural, not aspirational
-- **Maintains focus** - Each file does one thing well
-- **Easier testing** - Small, focused files are easier to test thoroughly
-
-If you can't express your component in 201 lines, it's telling you something needs to be broken down. This constraint has consistently improved code quality throughout the project.
-
-## Architecture Decisions
-
-### Q: Why use fixtures instead of connecting to a real backend?
-
-**A:** Fixtures provide **consistency and control** essential for client reviews:
-
-- **Reproducible state** - Every screenshot shows the same data
-- **No backend required** - Start getting feedback before API development
-- **Test-like reliability** - Same approach used in test suites
-- **Client focus** - Reviews focus on UI/UX, not data accuracy
-- **Controlled scenarios** - Easy to show edge cases (empty states, errors, etc.)
-
-For prototypes, data accuracy is less important than demonstrating workflows and gathering UI feedback. Real data integration comes after the prototype phase.
-
-### Q: Why no database? Why store everything in JSON files?
-
-**A:** Simplicity alignment with the disposable nature:
-
-- **Zero setup** - No database installation, no migrations, no connection strings
-- **No persistence layer** - No ORM, no query builder, no data modeling
-- **Portable** - JSON files move easily between environments
-- **Transparent** - Anyone can read/edit annotation data
-- **Disposable-friendly** - No database to tear down during cleanup
-- **Version control** - Annotation history lives in git if desired
-
-For a tool that handles dozens of annotations during a prototype phase, JSON files are completely sufficient. We're not building a production system.
-
-### Q: Why require a separate staging server instead of sharing the dev server?
-
-**A:** **Security and separation of concerns**:
-
-- **Dev environment exposure** - Developer tools shouldn't be accessible to clients
-- **Different contexts** - Developers need debugging tools; clients need annotation UI
-- **State isolation** - Dev work shouldn't interfere with client reviews
-- **Professional presentation** - Staging provides a clean, production-like experience
-- **Access control** - Staging can be password-protected without affecting dev workflow
-
-The staging deployment is intentionally manual and simple - just static files and a basic server. No complex deployment pipelines needed.
-
-### Q: Why manual deployment to staging? Why not automate it?
-
-**A:** **Simplicity first** - automation can be added later if needed:
-
-- **Prototype pace** - Manual deploys match prototype iteration speed
-- **No infrastructure** - No CI/CD pipeline to set up and maintain
-- **Explicit control** - Developers choose when to share with clients
-- **Future-compatible** - Easy to integrate with CI/CD when you need it
-
-During the prototype phase, you're typically deploying for review every few days, not multiple times per day. Manual deployment is perfectly adequate and avoids over-engineering.
-
-## Technical Choices
-
-### Q: Why Test-Driven Development for a prototyping tool?
-
-**A:** TDD ensures **reliability even for disposable code**:
-
-- **Prototypes aren't throwaway** - They become the foundation for real apps
-- **Client trust** - Buggy prototypes undermine stakeholder confidence
-- **Faster iteration** - Tests catch regressions during rapid changes
-- **Documentation** - Tests show how the tool is meant to work
-- **Confidence** - Developers trust the tool won't break their prototype
-
-Just because protobooth itself is disposable doesn't mean it can be unreliable. The TDD approach has already caught numerous edge cases during development.
-
-### Q: Why support both Vite and Next.js? Why not focus on one?
-
-**A:** **Meet developers where they are**:
-
-- **Different ecosystems** - React developers use different tools
-- **Minimal abstraction** - Each plugin leverages native router patterns
-- **No vendor lock-in** - Works with your existing setup
-- **Parallel development** - Vite and Next.js support different use cases
-
-The plugin architecture keeps framework-specific code isolated (under 201 lines each), making maintenance straightforward despite supporting multiple frameworks.
-
-### Q: Why Playwright instead of Puppeteer or other browser automation tools?
-
-**A:** Playwright offers **better multi-browser support** and **modern API design**:
-
-- **Multiple browsers** - Chromium, Firefox, WebKit out of the box
-- **Auto-wait** - Built-in waiting for elements, reducing flaky tests
-- **Modern async/await** - Clean API design
-- **Active development** - Microsoft backing, frequent updates
-- **Better TypeScript support** - First-class TypeScript integration
-
-However, the screenshot service uses dependency injection, so alternative implementations (Puppeteer, Selenium) could be added if needed.
-
-## Usage Patterns
-
-### Q: How do I handle authentication-protected routes?
-
-**A:** Use **fixture-based mock authentication**:
-
-```typescript
-protobooth({
-  fixtures: {
-    auth: {
-      authenticated: {
-        user: { id: '1', name: 'John Doe', email: 'john@example.com' },
-        token: 'mock-jwt-token',
-        permissions: ['read', 'write', 'admin'],
-      },
-      unauthenticated: null,
-    },
-  },
-});
-```
-
-The screenshot service injects this fixture data into your app's context/localStorage before capturing, allowing authenticated routes to render. **No real authentication needed** - we're demonstrating UI, not security.
-
-### Q: What if my routes aren't file-based?
-
-**A:** Current version supports:
-
-- **Vite**: `@tanstack/react-router` file-based routes
-- **Next.js**: App Router (file-based)
-- **Next.js**: Pages Router (file-based) - legacy support
-
-For code-based routing (e.g., React Router with route configs), a future plugin could parse your route configuration files. The architecture supports this - route discovery is isolated in each plugin.
-
-If this is a blocker for you, consider creating a custom route discovery implementation. See `src/integrations/vite-plugin.ts` for reference.
-
-### Q: Can I customize the annotation UI?
-
-**A:** The annotation UI is intentionally **simple and opinionated**:
-
-- **Basic markup tools** - Draw, text, arrows
-- **Simple comments** - Text feedback with priority levels
-- **No customization needed** - Designed for universal client use
-
-If you need custom annotation features, you can:
-
-1. Fork the project and modify `src/ui/Annotate/`
-2. Use the downloaded JSON/images and build your own review interface
-3. Use a different tool - protobooth prioritizes simplicity over customization
-
-Remember: this is for **prototype feedback**, not production review workflows.
-
-### Q: How do I handle dynamic routes with multiple instances?
-
-**A:** Provide an **array of fixture objects**:
-
-```typescript
-protobooth({
-  fixtures: {
-    dynamicRoutes: {
-      '/user/[id]': [
-        { id: '123', name: 'John Doe', role: 'admin' },
-        { id: '456', name: 'Jane Smith', role: 'user' },
-        { id: '789', name: 'Bob Wilson', role: 'guest' },
-      ],
-    },
-  },
-});
-```
-
-This generates three screenshots: `/user/123`, `/user/456`, `/user/789`, each with its corresponding data. Perfect for showing different user states or content variations.
-
-### Q: What happens to annotation data after the prototype phase?
-
-**A:** The data is **yours to keep or discard**:
-
-- **Cleanup command** - `npx protobooth cleanup` archives annotations before removal
-- **Archived format** - JSON + marked-up images in a timestamped folder
-- **Documentation** - Can be added to project docs as "initial design feedback"
-- **Disposable** - Or delete it - the prototype phase is over
-
-The tool doesn't force any particular approach to data retention. It's your project, your decision.
-
-## Integration and Workflow
-
-### Q: How does protobooth fit into CI/CD pipelines?
-
-**A:** It **doesn't need to** during the prototype phase:
-
-- **Local development** - Developers use it locally during prototyping
-- **Manual staging deploys** - Push to staging when ready for review
-- **No build pipeline** - Minimal infrastructure during exploration
-
-**After prototyping**, when you remove protobooth:
-
-- CI/CD handles real deployments to proper staging environments
-- Visual regression testing moves to Chromatic/Percy/similar
-- Protobooth has served its purpose and been removed
-
-If you want CI integration during prototyping, you can add it, but it's not necessary for the tool to be useful.
-
-### Q: Can I use protobooth in production?
-
-**A:** **No. Absolutely not.** Protobooth is explicitly designed for **prototype phase only**:
-
-- **Mock data** - Fixtures aren't real data
-- **No authentication** - Mock auth states aren't secure
-- **Local dev tooling** - Not designed for production scale
-- **Disposable architecture** - Should be removed, not deployed
-
-Using protobooth in production violates its core design principles. When your prototype becomes a real application, remove protobooth and implement proper:
-
-- Backend APIs with real data
-- Proper authentication and authorization
-- Production-ready state management
-- Staging environments with real infrastructure
-- Proper monitoring and error handling
-
-### Q: How do I transition away from protobooth?
-
-**A:** The **self-destruct command** handles cleanup:
-
-```bash
-npx protobooth cleanup
-```
-
-This command:
-
-1. Archives all annotation data (JSON + images)
-2. Removes all protobooth routes from your application
-3. Removes protobooth configuration from build configs
-4. Uninstalls the npm package
-5. Removes protobooth-specific files
-
-What remains:
-
-- Your prototype UI components (cleaned up)
-- Archived feedback for reference
-- A clear path to production architecture
-
-The transition is **intentionally explicit** - no lingering technical debt.
-
-## Development and Contribution
-
-### Q: Why TypeScript without `any` types?
-
-**A:** **Type safety is essential** even for disposable tools:
-
-- **Catches bugs** - TypeScript errors prevented many issues during development
-- **Better refactoring** - Confident code changes with type checking
-- **Self-documenting** - Types serve as inline documentation
-- **IDE support** - Better autocomplete and error detection
-- **No escape hatches** - `any` types defeat the purpose of TypeScript
-
-The strict TypeScript approach has consistently improved code quality and made the codebase easier to maintain.
-
-### Q: Can I contribute to protobooth?
-
-**A:** Contributions are welcome! Keep core principles in mind:
-
-- **Test-first** - Write tests before implementation
-- **Simplicity** - Avoid adding complexity
-- **SOLID principles** - Clean architecture
-- **201-line limit** - Keep files focused and small
-- **No databases** - Maintain simplicity with file-based storage
-
-See `CLAUDE.md` for complete development guidelines.
-
-### Q: Why are there so many documentation files?
-
-**A:** **Different audiences, different needs**:
-
-- **README.md** - User-facing project overview
-- **CLAUDE.md** - Complete technical guidance for AI-assisted development
-- **PROGRESS.README.md** - Development progress tracking across sessions
-- **Q&A.md** (this file) - Common questions and answers
-
-Each file serves a specific purpose and audience. They're intentionally kept separate rather than merged into one massive document.
-
-## Troubleshooting
-
-### Q: Screenshots aren't capturing my authenticated routes?
-
-**A:** Ensure fixture auth data is being **injected correctly**:
-
-1. Check your fixture configuration includes `auth.authenticated`
-2. Verify your app's auth context/store accepts the mock data
-3. Test locally that fixtures work before capturing screenshots
-4. Check console logs during screenshot capture for injection errors
-
-The fixture manager should inject auth data before page load. If your app uses complex auth flows, you may need to adjust your app's dev mode handling.
-
-### Q: The UI routes (`/protobooth/*`) conflict with my app routes?
-
-**A:** This shouldn't happen - protobooth routes are explicitly filtered:
-
-- **Automatic exclusion** - Route discovery skips `/protobooth/*` patterns
-- **Namespaced** - All protobooth routes use `/protobooth/` prefix
-- **Collision detection** - Plugins warn if conflicts are detected
-
-If you have a legitimate route that starts with `/protobooth/`, consider renaming it during the prototype phase, or configure protobooth to use a different prefix (feature not yet implemented, but possible).
-
-### Q: Tests are failing after I updated my routes?
-
-**A:** **Regenerate routes.json**:
-
-```bash
-# For Vite projects
-npm run dev  # Routes are discovered on dev server start
-
-# For Next.js projects
-npm run dev  # Routes are discovered during build
-```
-
-The `routes.json` file is auto-generated and should not be committed to version control (it's in `.gitignore`). Each developer's routes.json reflects their current codebase state.
-
-### Q: The annotation UI isn't showing my screenshots?
-
-**A:** Verify **staging deployment** included all assets:
-
-1. Check that screenshot images were copied to staging server
-2. Verify `routes.json` was deployed with correct paths
-3. Ensure static file serving is configured correctly
-4. Check browser console for 404 errors
-
-The staging environment needs both the annotation UI HTML and all screenshot assets. The deployment process should copy everything in the output directory.
+1. **Test-Driven Development** - Write tests BEFORE implementation (RED → GREEN → REFACTOR)
+2. **Simplicity First** - Always choose the simplest solution
+3. **SOLID Principles** - Apply consistently during planning and implementation
+4. **201-Line Limit** - Keep all `.ts`, `.tsx`, `.css`, `.scss` files under 201 lines
+5. **TestIds Only** - NEVER use text-based queries in tests, ALWAYS use `data-testid`
+6. **Zero `any` Types** - Maintain strict TypeScript type safety
 
 ---
 
-## Next Steps Planning (CURRENT FOCUS)
+## Current Implementation Questions (Session 4 - October 2025)
 
-### Q: What's the priority for next development steps?
+### Q1: UI-to-API Connection Strategy
 
-**A:** Based on PROGRESS.README.md, we have four possible directions:
+**Context**: The UIs (ResolveApp, AnnotateApp) currently receive service functions as props (mocks in tests). For production browser usage, we need client-side implementations that call our API endpoints.
 
-1. Connect ResolveApp to real file operations and screenshot service
-2. Implement route injection for production dev server usage
-3. Build AnnotateApp component following same pattern
-4. REFACTOR phase: Improve code quality while maintaining test coverage
+**Question**: How should we connect the browser-based UIs to the HTTP API endpoints?
 
-**Recommended Priority (following core principles):**
+**Recommended Answer**: **Create browser-side API adapter layer** following dependency injection pattern.
 
-**(CURRENT FOCUS) 1. Build AnnotateApp Component First** - Following TDD approach:
-- **Why first**: Completes the full workflow cycle (dev UI + client UI)
-- **Aligns with TDD**: Write tests before implementation (RED → GREEN → REFACTOR)
-- **Simplicity**: Reuse existing Core components, keep focused
-- **File size**: Each file under 201 lines
-- **TestIds**: ALWAYS use testIds, never text-based queries
-- **Value**: Delivers complete user-facing functionality
+**Rationale**:
+- **Maintains testability** - UIs remain testable with mocks
+- **Single Responsibility** - UI components don't know about HTTP
+- **Simplicity** - Clean abstraction boundary
+- **Follows existing pattern** - Already using props for dependency injection
 
-**(CURRENT FOCUS) 2. Implement Route Injection** - After AnnotateApp works:
-- **Why second**: Enables real usage of both UIs in host applications
-- **Test with demos**: Use demos/tanstack-router and demos/nextjs
-- **TDD approach**: Write integration tests for route injection first
-- **Start simple**: Vite plugin first (simpler), then Next.js plugin
-- **File size**: Each plugin under 201 lines
+**Implementation Approach**:
 
-**(CURRENT FOCUS) 3. Connect Real Services** - After route injection works:
-- **Why third**: Makes the tool actually functional end-to-end
-- **fs-extra**: Implement real file operations with fs-extra
-- **Playwright**: Implement real screenshot service with Playwright
-- **Keep mocks**: Maintain mock implementations for tests
-- **TDD**: Write tests for real service implementations
-
-**(CURRENT FOCUS) 4. REFACTOR Phase** - After everything works:
-- **Why last**: Only refactor working code with passing tests
-- **Maintain 100%**: Keep all 165 tests passing throughout
-- **Focus areas**: Code duplication, component composition, hook extraction
-- **File size**: Ensure all files still under 201 lines after refactoring
-
-### Q: How should we approach building AnnotateApp with TDD?
-
-**A:** Follow the exact same successful pattern we used for ResolveApp:
-
-**(CURRENT FOCUS) Phase 1 - RED: Write Failing Tests**
-- Create 12-16 integration tests for AnnotateApp interactions:
-  - Canvas annotation tools (draw, text, arrows)
-  - Annotation list management (add, edit, delete)
-  - Priority setting (high, medium, low)
-  - Publish workflow (save and submit annotations)
-  - Error handling (upload failures, validation errors)
-- Split tests into multiple files (under 201 lines each):
-  - `annotate-app-tools.test.tsx` - Canvas tool interactions
-  - `annotate-app-annotations.test.tsx` - Annotation CRUD operations
-  - `annotate-app-publish.test.tsx` - Publish workflow
-  - `annotate-app-errors.test.tsx` - Error scenarios
-- **ALWAYS use testIds** - Never `getByText`, always `data-testid`
-- Use in-memory mocks with `vi.fn()` for all services
-
-**(CURRENT FOCUS) Phase 2 - GREEN: Make Tests Pass**
-- Build minimal AnnotateApp implementation
-- Reuse Core components (Button, Layout, Sidebar, etc.)
-- Create Annotate-specific components:
-  - Canvas with Fabric.js for drawing
-  - AnnotationForm for creating/editing annotations
-  - PublishButton with confirmation dialog
-  - ToolPalette for drawing tools
-- Keep all components under 201 lines
-- Add testIds to ALL interactive elements
-
-**(CURRENT FOCUS) Phase 3 - REFACTOR: Improve Quality**
-- Extract reusable hooks
-- Improve component composition
-- Reduce code duplication
-- Maintain 100% test pass rate
-
-### Q: Should we create real service implementations or keep using mocks?
-
-**A:** **Both** - following separation of concerns:
-
-**(CURRENT FOCUS) For Tests:**
-- **ALWAYS use mocks** - Tests should be fast and isolated
-- Keep using `vi.fn()` with in-memory data
-- No file I/O, no browser automation in tests
-- This ensures tests run in milliseconds
-
-**(CURRENT FOCUS) For Production Code:**
-- **Create real implementations** - For actual tool functionality
-- Use dependency injection pattern (already established in ResolveApp.props)
-- Implement:
-  - `RealFileOperations` using fs-extra
-  - `RealScreenshotService` using Playwright
-  - `RealFixtureManager` with fixture loading
-- Keep mock implementations for development UI testing
-
-**(CURRENT FOCUS) Architecture:**
 ```typescript
-// src/services/file-operations.ts (real implementation)
-export class RealFileOperations implements FileOperations {
-  async readFile(path: string): Promise<string> {
-    return fs.readFile(path, 'utf-8');
-  }
-  // ... under 201 lines
+// src/ui/browser-api-adapter.ts (under 201 lines)
+export function createBrowserFileOperations(baseUrl: string): FileOperations {
+  return {
+    async readFile(filename: string): Promise<string> {
+      const response = await fetch(`${baseUrl}/api/files/${filename}`);
+      if (!response.ok) throw new Error('File not found');
+      return response.text();
+    },
+    async writeFile(filename: string, content: string): Promise<void> {
+      await fetch(`${baseUrl}/api/files/${filename}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      });
+    },
+    async fileExists(filename: string): Promise<boolean> {
+      const response = await fetch(`${baseUrl}/api/files/${filename}`, { method: 'HEAD' });
+      return response.ok;
+    }
+  };
 }
 
-// src/services/mock-file-operations.ts (for tests)
-export function createMockFileOperations(): FileOperations {
+export function createBrowserScreenshotService(baseUrl: string): ScreenshotService {
   return {
-    readFile: vi.fn(),
-    writeFile: vi.fn(),
-    fileExists: vi.fn(),
+    async captureRoutes(options: CaptureOptions): Promise<CaptureResult> {
+      const response = await fetch(`${baseUrl}/api/screenshots/capture`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(options)
+      });
+      return response.json();
+    }
   };
 }
 ```
 
-### Q: How should route injection be tested?
+**TDD Approach**:
+1. **RED**: Write tests for browser adapters (mock fetch API)
+2. **GREEN**: Implement minimal adapter functions
+3. **REFACTOR**: Extract common patterns if duplication emerges
 
-**A:** **TDD with demo applications:**
+**File Size**: All adapters in single file (estimated ~80 lines), well under 201-line limit.
 
-**(CURRENT FOCUS) Test Strategy:**
-1. **Write integration tests first** (RED phase)
-2. **Test with real demo apps** - Use demos/tanstack-router and demos/nextjs
-3. **Test route discovery** - Verify correct routes are found
-4. **Test route injection** - Verify `/protobooth` routes are added
-5. **Test route exclusion** - Verify `/protobooth` routes excluded from screenshots
-6. **Keep tests under 201 lines** - Split into multiple test files if needed
+---
 
-**(CURRENT FOCUS) Example Test Structure:**
+### Q2: Testing Strategy for E2E Workflows
+
+**Context**: We have integration tests for API handlers. Now need to test complete user workflows.
+
+**Question**: What testing strategy should we use for end-to-end workflow validation?
+
+**Recommended Answer**: **Hybrid approach - Option C (Both integration and E2E tests)**.
+
+**Rationale**:
+- **Integration tests** (current) - Fast, reliable, test API layer
+- **E2E tests** (new) - Validate complete workflow with real HTTP
+- **Best of both worlds** - Fast feedback + high confidence
+
+**Test Pyramid**:
+```
+         ╱╲     E2E Tests (5-10)
+        ╱  ╲    - Full workflow with real dev server
+       ╱    ╲   - Slower but comprehensive
+      ╱──────╲
+     ╱        ╲  Integration Tests (30-40)
+    ╱          ╲ - API handlers with real services
+   ╱────────────╲ - Fast, focused
+  ╱              ╲ Unit Tests (100+)
+ ╱────────────────╲ - Component logic
+```
+
+**Implementation Approach**:
+
+**Integration Tests** (current - keep these):
+- Test API handlers directly without HTTP
+- Use mock request/response objects
+- Fast execution (~50ms per test)
+- Already have 12 tests covering all endpoints
+
+**E2E Tests** (new - add these):
 ```typescript
-// tests/integration/vite-plugin-routes.test.ts
-describe('Vite Plugin - Route Discovery', () => {
-  it('should discover file-based routes from TanStack Router', async () => {
-    // Test route discovery logic
-  });
-
-  it('should inject /protobooth/resolve route', async () => {
-    // Test route injection
-  });
-
-  it('should inject /protobooth/annotate route', async () => {
-    // Test route injection
-  });
-
-  it('should exclude /protobooth/* from screenshot capture', async () => {
-    // Test exclusion logic
+// tests/e2e/request-review-workflow.test.ts
+describe('Request Review Workflow - End to End', () => {
+  it('should complete full workflow from UI to file storage', async () => {
+    // 1. Start dev server
+    // 2. Navigate to /protobooth/resolve
+    // 3. Click "Request Review" button
+    // 4. Verify API call made
+    // 5. Verify workflow state updated in .protobooth/ directory
+    // 6. Verify screenshots captured
   });
 });
 ```
 
-### Q: What code areas need refactoring after GREEN phase?
+**TDD Approach**:
+1. **RED**: Write failing E2E tests for complete workflows
+2. **GREEN**: Connect UIs to browser adapters
+3. **REFACTOR**: Optimize test setup/teardown
 
-**A:** **Potential refactoring candidates** (ONLY after all tests pass):
-
-**(CURRENT FOCUS) Component Composition:**
-- Extract shared patterns between InDevelopmentView, InReviewView, etc.
-- Create base ViewContainer component for common layout
-- Reduce duplication in view components
-
-**(CURRENT FOCUS) Hook Extraction:**
-- Consider extracting common patterns from useResolveHandlers
-- Create useWorkflowTransitions hook for state management
-- Extract useFileOperations hook for file I/O patterns
-
-**(CURRENT FOCUS) Type Definitions:**
-- Consolidate duplicate type definitions
-- Create shared types in Core module
-- Reduce type duplication between Resolve and Annotate modules
-
-**(CURRENT FOCUS) Refactoring Rules:**
-- **NEVER refactor without tests** - All 165+ tests must pass
-- **One refactoring at a time** - Make small, incremental improvements
-- **Maintain 201-line limit** - If refactoring creates large files, split them
-- **Keep testIds unchanged** - Don't break tests during refactoring
-- **Run tests after each change** - Ensure no regressions
+**Scope**: 5-10 E2E tests covering critical paths:
+- Request Review workflow
+- Annotation download workflow
+- Workflow state persistence
+- Error recovery
 
 ---
 
-## Still Have Questions?
+### Q3: Implementation Priority
 
-- **Check the documentation**: `CLAUDE.md` has extensive technical details
-- **Review the architecture**: `architecture.md` explains system design
-- **Read the progress log**: `PROGRESS.README.md` shows implementation decisions
-- **File an issue**: https://github.com/anthropics/protobooth/issues (replace with actual repo URL)
+**Context**: Multiple possible next steps - need to choose optimal sequence.
 
-Remember: protobooth is designed for **simplicity during the prototype phase**. If something feels complex or over-engineered, that's probably not the protobooth way. Keep it simple, get feedback fast, and remove the tool when prototyping ends.
+**Question**: What order should we implement remaining features?
+
+**Recommended Answer**: **Option A - Complete Vite workflow first, then replicate for Next.js**.
+
+**Rationale**:
+- **Faster feedback** - Get one framework fully working quickly
+- **Validates architecture** - Proves the design before replicating
+- **Simplicity** - Focus on one framework at a time
+- **Demo-driven** - Can test with demos/tanstack-router immediately
+
+**Implementation Sequence**:
+
+**Phase 1: Browser API Adapters** (TDD)
+1. Write tests for browser file operations adapter
+2. Write tests for browser screenshot service adapter
+3. Write tests for browser workflow manager adapter
+4. Implement all adapters (single file, ~100 lines)
+5. Verify adapters work with existing API endpoints
+
+**Phase 2: Connect ResolveApp to Browser Adapters**
+1. Update resolve-dev.tsx to use browser adapters
+2. Test locally with Vite demo app
+3. Verify "Request Review" button triggers real screenshot capture
+4. Verify workflow state persists to .protobooth/
+
+**Phase 3: Connect AnnotateApp to Browser Adapters**
+1. Update annotate-dev.tsx to use browser adapters
+2. Test locally with Vite demo app
+3. Verify annotations save to .protobooth/
+4. Verify "Publish" button works end-to-end
+
+**Phase 4: E2E Tests for Vite**
+1. Write E2E tests for complete Request Review workflow
+2. Write E2E tests for complete annotation workflow
+3. Verify all tests pass with real dev server
+
+**Phase 5: Replicate for Next.js**
+1. Create Next.js versions of browser adapters (if needed)
+2. Test with demos/nextjs app
+3. Verify feature parity with Vite
+4. Add Next.js-specific E2E tests
+
+**Phase 6: Download Mechanism**
+1. Implement .zip generation endpoint
+2. Add download handler to ResolveApp
+3. Test download workflow E2E
+
+**Estimated Timeline**: Phase 1-4 (Vite complete) = 1-2 sessions, Phase 5-6 (Next.js + downloads) = 1 session
+
+---
+
+### Q4: Download Mechanism Scope
+
+**Context**: Need to implement annotation download as .zip file.
+
+**Question**: What should the download endpoint include?
+
+**Recommended Answer**: **Generate .zip on-the-fly with annotations JSON + original screenshots**.
+
+**Rationale**:
+- **Simplicity** - On-the-fly generation, no storage overhead
+- **Complete package** - Developers get everything needed
+- **Visual context** - Screenshots help understand annotations
+- **No database** - Consistent with file-based architecture
+
+**Download Contents**:
+```
+protobooth-annotations-{timestamp}.zip
+├── annotations.json          # All annotation data
+├── screenshots/
+│   ├── home-desktop.png      # Original screenshots
+│   ├── home-mobile.png
+│   ├── about-desktop.png
+│   └── ...
+└── README.txt               # Simple explanation of contents
+```
+
+**Implementation Approach**:
+
+```typescript
+// src/api/download-handler.ts (under 201 lines)
+export async function handleAnnotationDownload(
+  projectRoot: string
+): Promise<Buffer> {
+  const zip = new JSZip(); // or Node's built-in zlib
+
+  // Add annotations JSON
+  const annotations = await readFile('.protobooth/annotations.json');
+  zip.file('annotations.json', annotations);
+
+  // Add screenshots
+  const screenshots = await readdir('.protobooth/screenshots');
+  for (const file of screenshots) {
+    const content = await readFile(`.protobooth/screenshots/${file}`);
+    zip.file(`screenshots/${file}`, content);
+  }
+
+  // Add README
+  zip.file('README.txt', 'Protobooth Annotation Export...');
+
+  return zip.generateAsync({ type: 'nodebuffer' });
+}
+```
+
+**API Endpoint**:
+- `GET /api/annotations/download` → Returns .zip file
+- Content-Type: `application/zip`
+- Content-Disposition: `attachment; filename="protobooth-annotations-{timestamp}.zip"`
+
+**TDD Approach**:
+1. **RED**: Write test for download endpoint
+2. **GREEN**: Implement zip generation
+3. **REFACTOR**: Extract zip logic if needed
+
+**Alternative Considered (Rejected)**: Include annotated screenshots with markup overlays
+- **Reason for rejection**: Adds complexity, original screenshots are sufficient
+- **Could add later**: If clients specifically request it
+
+---
+
+### Q5: Immediate Next Step
+
+**Context**: Multiple tasks ready to start.
+
+**Question**: What should we work on right now?
+
+**Recommended Answer**: **Option B - Write E2E workflow tests first (TDD approach)**.
+
+**Rationale**:
+- **True TDD** - Write tests before browser adapters
+- **Defines requirements** - Tests specify exactly what adapters need
+- **Higher confidence** - Validates complete user workflow
+- **Aligns with principles** - RED → GREEN → REFACTOR
+
+**Immediate Action Plan**:
+
+**Step 1: Write Failing E2E Test for Request Review** (RED phase)
+```typescript
+// tests/e2e/request-review-e2e.test.ts (NEW FILE)
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { chromium, Browser, Page } from 'playwright';
+
+describe('Request Review Workflow - End to End', () => {
+  let browser: Browser;
+  let page: Page;
+
+  beforeAll(async () => {
+    // Start Vite dev server programmatically
+    // Wait for server to be ready
+    browser = await chromium.launch();
+    page = await browser.newPage();
+  });
+
+  afterAll(async () => {
+    await browser.close();
+    // Stop dev server
+  });
+
+  it('should capture screenshots when Request Review clicked', async () => {
+    // Navigate to /protobooth/resolve
+    await page.goto('http://localhost:5173/protobooth/resolve');
+
+    // Wait for UI to load
+    await page.waitForSelector('[data-testid="request-review-button"]');
+
+    // Click Request Review
+    await page.click('[data-testid="request-review-button"]');
+
+    // Wait for capture to complete
+    await page.waitForSelector('[data-testid="workflow-reviews-requested"]');
+
+    // Verify workflow state was updated
+    const fs = await import('fs/promises');
+    const stateFile = await fs.readFile('.protobooth/workflow-state.json', 'utf-8');
+    const state = JSON.parse(stateFile);
+    expect(state.state).toBe('reviews-requested');
+
+    // Verify screenshots were created
+    const screenshots = await fs.readdir('.protobooth/screenshots');
+    expect(screenshots.length).toBeGreaterThan(0);
+  });
+});
+```
+
+**Step 2: Run Test - It WILL Fail** (confirming RED phase)
+- Test will fail because browser adapters don't exist yet
+- This is expected and correct per TDD
+
+**Step 3: Create Browser Adapters** (GREEN phase)
+- Implement createBrowserFileOperations()
+- Implement createBrowserScreenshotService()
+- Wire adapters into resolve-dev.tsx
+- Run test again - should pass
+
+**Step 4: Refactor If Needed** (REFACTOR phase)
+- Extract common patterns
+- Improve error handling
+- Maintain test pass rate
+
+**Estimated Time**:
+- E2E test writing: 30-60 minutes
+- Browser adapter implementation: 60-90 minutes
+- Total: ~2-3 hours to complete full TDD cycle
+
+---
+
+## Decision Summary
+
+Based on core principles and current project state:
+
+1. **UI-API Connection**: Create browser adapter layer (simplicity, testability)
+2. **Testing Strategy**: Hybrid (integration + E2E tests)
+3. **Implementation Priority**: Vite first, then Next.js (faster feedback)
+4. **Download Scope**: .zip with JSON + original screenshots (simplicity)
+5. **Immediate Next Step**: Write E2E tests first (true TDD)
+
+All decisions prioritize:
+- ✅ Test-first development
+- ✅ Simplicity over cleverness
+- ✅ SOLID principles
+- ✅ 201-line file limit
+- ✅ Zero `any` types
+- ✅ Testable architecture
+
+---
+
+## Follow-Up Questions - ANSWERED
+
+All strategic questions resolved:
+
+1. ✅ **E2E test approach approved** - Write failing E2E tests first (TDD)
+2. ✅ **Browser adapter architecture approved** - Single file with all adapters
+3. ✅ **Vite-first approach approved** - Complete Vite before Next.js
+4. ✅ **Download format approved** - .zip with JSON + screenshots
+5. ✅ **Dev server management** - Start once per test file, random port (see Q6 below)
+6. ✅ **Test fixtures for E2E** - Use demos/tanstack-router app (see Q7 below)
+
+---
+
+### Q6: E2E Test Dev Server Management
+
+**Context**: E2E tests need a running Vite dev server to test against.
+
+**Question**: How should E2E tests start/stop the Vite dev server?
+
+**Recommended Answer**: **Start dev server once per test file (beforeAll), use random available port**.
+
+**Rationale**:
+- **Good UX** - Developers just run `npm test`, no manual server management
+- **Fast** - Server starts once, shared across tests in same file
+- **Isolated** - Each test file gets its own server instance
+- **No port conflicts** - Random port prevents collision with already-running dev servers
+- **Automatic cleanup** - Server stops in afterAll
+
+**Implementation**:
+
+```typescript
+// tests/e2e/request-review-e2e.test.ts
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { chromium, Browser, Page } from 'playwright';
+import { createServer, ViteDevServer } from 'vite';
+import { resolve } from 'path';
+
+describe('Request Review Workflow - End to End', () => {
+  let server: ViteDevServer;
+  let browser: Browser;
+  let page: Page;
+  let serverUrl: string;
+
+  beforeAll(async () => {
+    // Start Vite dev server for demos/tanstack-router
+    server = await createServer({
+      root: resolve(__dirname, '../../demos/tanstack-router'),
+      server: {
+        port: 0, // 0 = random available port
+      },
+    });
+
+    await server.listen();
+    const port = server.config.server.port!;
+    serverUrl = `http://localhost:${port}`;
+
+    // Start Playwright browser
+    browser = await chromium.launch();
+    page = await browser.newPage();
+  }, 60000); // 60 second timeout for server startup
+
+  afterAll(async () => {
+    await page?.close();
+    await browser?.close();
+    await server?.close();
+  });
+
+  it('should capture screenshots when Request Review clicked', async () => {
+    // Navigate to protobooth resolve UI
+    await page.goto(`${serverUrl}/protobooth/resolve`);
+
+    // Test continues...
+  });
+});
+```
+
+**Benefits**:
+- ✅ Zero manual setup - tests are self-contained
+- ✅ No port conflicts - random port allocation
+- ✅ Fast - server shared across tests in file
+- ✅ Clean - automatic teardown
+
+**Alternative Considered (Rejected)**: Assume server already running manually
+- **Reason**: Poor developer experience - easy to forget, tests fail mysteriously
+- **Better**: Automated setup, tests "just work"
+
+---
+
+### Q7: E2E Test Fixtures and Target App
+
+**Context**: E2E tests need a real application to test protobooth integration.
+
+**Question**: Which demo app should E2E tests use, and how?
+
+**Confirmed Answer**: **Use `demos/tanstack-router` as primary E2E test target**.
+
+**Rationale**:
+- **Primary integration** - TanStack Router is the main focus
+- **Real-world validation** - Tests against actual router implementation
+- **Complete setup** - Demo already has fixtures, routes, components
+- **Vite-first approach** - Aligns with implementation priority
+
+**E2E Test Structure**:
+
+```typescript
+// tests/e2e/request-review-e2e.test.ts
+describe('Request Review Workflow - TanStack Router Demo', () => {
+  // Uses demos/tanstack-router app
+  // Tests protobooth routes: /protobooth/resolve, /protobooth/annotate
+  // Verifies integration with real TanStack Router routes
+});
+
+// tests/e2e/annotation-workflow-e2e.test.ts
+describe('Annotation Workflow - TanStack Router Demo', () => {
+  // Tests complete annotation cycle
+  // Verifies file persistence in .protobooth/ directory
+});
+```
+
+**Demo App Routes Available** (from `demos/tanstack-router/routes.json`):
+- Static routes: `/`, `/about`, `/dashboard`, `/products`
+- Dynamic routes: `/product/$slug`, `/user/$userId`
+- Total: 6 routes for comprehensive testing
+
+**Test Scenarios**:
+1. Navigate to `/protobooth/resolve`
+2. Click "Request Review" button
+3. Verify screenshots captured for all 6 demo routes
+4. Verify workflow state persisted to `.protobooth/workflow-state.json`
+5. Navigate to `/protobooth/annotate` (simulating staging)
+6. Add annotations to screenshots
+7. Click "Publish" button
+8. Verify annotations saved to `.protobooth/annotations.json`
+
+**Benefits**:
+- ✅ Real integration testing - not mocked
+- ✅ Uses existing demo infrastructure
+- ✅ Validates complete workflow end-to-end
+- ✅ Tests actual fixture injection with TanStack Router
+
+---
+
+## Implementation Plan - Ready to Execute
+
+With all questions answered, the implementation plan is:
+
+**Phase 1: E2E Tests (RED)**
+1. Create `tests/e2e/request-review-e2e.test.ts`
+2. Write failing test for Request Review workflow
+3. Test will fail because browser adapters don't exist yet ✅ (expected)
+
+**Phase 2: Browser Adapters (GREEN)**
+1. Create `src/ui/browser-api-adapter.ts`
+2. Implement `createBrowserFileOperations()`
+3. Implement `createBrowserScreenshotService()`
+4. Wire adapters into `src/ui/Resolve/index.tsx`
+5. E2E test should pass ✅
+
+**Phase 3: Manual Verification**
+1. Run demo: `cd demos/tanstack-router && npm run dev`
+2. Navigate to `http://localhost:5173/protobooth/resolve`
+3. Click "Request Review" button
+4. Verify screenshots captured in `.protobooth/screenshots/`
+5. Verify workflow state in `.protobooth/workflow-state.json`
+
+**Phase 4: Repeat for AnnotateApp**
+1. Write E2E test for annotation workflow (RED)
+2. Wire browser adapters into `src/ui/Annotate/index.tsx` (GREEN)
+3. Test annotation save/publish workflow
+
+**Estimated Timeline**: 2-3 hours for complete Vite workflow
+
+All decisions align with core principles. Ready to proceed with TDD cycle.
