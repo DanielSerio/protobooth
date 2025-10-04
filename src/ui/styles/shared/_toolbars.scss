@@ -1,7 +1,8 @@
 @use '../config/index.scss' as config;
 
-.toolbar-stack {
+.protobooth .toolbar-stack {
   position: fixed;
+  flex-direction: column;
   left: #{config.$sidebar-width * 1px};
   bottom: 0;
   width: calc(100% - #{config.$sidebar-width * 1px});
@@ -10,6 +11,6 @@
   background: var(--panel-background);
 }
 
-.toolbar-section {
+.protobooth .toolbar-section {
   max-height: #{config.$toolbar-height * 1px};
 }

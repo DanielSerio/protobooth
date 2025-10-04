@@ -1,29 +1,64 @@
-.btn {
-  appearance: none;
-  outline: none;
-  border-color: transparent;
+@use 'sass:map';
 
-  &-toolbar {
-    height: 48px;
-    min-width: 48px;
-  }
+$sizes: (
+  xs: (
+    font: 12,
+    height: 24,
+  ),
+  sm: (
+    font: 14,
+    height: 30,
+  ),
+  md: (
+    font: 16,
+    height: 36,
+  ),
+  lg: (
+    font: 18,
+    height: 42,
+  ),
+  xl: (
+    font: 20,
+    height: 48,
+  ),
+);
 
-  &-toolbar,
-  &-icon {
+.protobooth {
+  .btn {
     display: inline-grid;
     place-content: center;
+    appearance: none;
     line-height: 0;
-  }
+    outline: none;
+    border-color: transparent;
+    font-family: inherit;
 
-  &:not(:disabled) {
-    cursor: pointer;
-    opacity: 1;
+    @each $size, $map in $sizes {
+      $font: map.get($map, font);
+      $height: map.get($map, height);
 
-    &:focus,
-    &:active {
-      position: relative;
-      box-shadow: 0 0 0 2px var(--color-indigo-500);
-      z-index: 10;
+      &-#{$size} {
+        font-size: #{calc($font / 16) * 1rem};
+        height: #{$height * 1px};
+        padding-inline: 2ch;
+      }
+    }
+
+    &-icon {
+      padding-inline: 0;
+      aspect-ratio: 1;
+    }
+
+    &:not(:disabled) {
+      cursor: pointer;
+      opacity: 1;
+
+      &:focus,
+      &:active {
+        position: relative;
+        box-shadow: 0 0 0 2px var(--color-indigo-500);
+        z-index: 10;
+      }
     }
   }
 }

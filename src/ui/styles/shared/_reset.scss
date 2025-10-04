@@ -1,17 +1,11 @@
 @use '../config/index.scss' as config;
 @forward './theme';
 
-#protobooth-root {
+#protobooth-root.protobooth {
   display: contents;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-:root {
+:root:has(.protobooth) {
   color-scheme: light;
   font-family:
     system-ui,
@@ -27,25 +21,35 @@
     sans-serif;
   background-color: var(--color-zinc-50);
   color: var(--color-zinc-950);
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 }
 
-h1,
-h2,
-h3,
-h4 {
-  font-weight: 500;
-}
+.protobooth {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 500;
+  }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin: 0;
-}
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+  }
 
-ul {
-  padding-left: 24px;
-  list-style-type: square;
+  ul {
+    padding: 6px;
+    border-radius: 3px;
+    padding-left: 24px;
+    list-style-type: square;
+  }
 }

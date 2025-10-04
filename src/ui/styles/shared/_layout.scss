@@ -1,6 +1,27 @@
+@use 'sass:list';
 @use '../config/index.scss' as config;
 
-html:has(.layout) {
+$displays: flex, inline-flex, block, inline-block, grid, inline-grid;
+$items: start, sp-around, sp-between, sp-evenly, center, end;
+
+@function get-justify-name($item) {
+  $sp: sp-around, sp-between, sp-evenly;
+
+  @if (list.index($sp, $item)) {
+    @if ($item == sp-around) {
+      @return space-around;
+    } @else if ($item == sp-between) {
+      @debug 'space-between';
+      @return space-between;
+    } @else if ($item == sp-evenly) {
+      @return space-evenly;
+    }
+  }
+
+  @return $item;
+}
+
+html:has(.protobooth) {
   &,
   body {
     height: 0;
@@ -16,41 +37,44 @@ html:has(.layout) {
   }
 }
 
-.layout {
-  min-height: 100svh;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
-  padding-left: #{config.$sidebar-width * 1px}; // account for fixed sidebar
-  padding-bottom: #{config.$toolbar-height * 2px}; // account for fixed toolbar stack
-}
-
-.toolbar,
-.toolbar-stack {
-  display: flex;
-}
-
-.toolbar-stack {
-  flex-direction: column;
-}
-
-$displays: (flex, inline-flex, block, inline-block, grid, inline-grid);
-$items: (start, sp-around, sp-between, sp-evenly, center, end);
-
-@each $display in $displays {
-  .#{$display} {
-    display: #{$display};
-  }
-}
-
-@each $orientation in $items {
-  .items-#{$orientation} {
-    align-items: #{$orientation};
+.protobooth {
+  .layout {
+    min-height: 100svh;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    padding-left: #{config.$sidebar-width * 1px}; // account for fixed sidebar
+    padding-bottom: #{config.$toolbar-height * 2px}; // account for fixed toolbar stack
   }
 
-  .justify-#{$orientation} {
-    justify-content: #{$orientation};
+  .layout > main {
+    padding-block: 0 48px;
+    padding-inline: 24px;
+  }
+
+  .workflow-state {
+    text-align: center;
+
+    h2 + p {
+      margin-bottom: 36px;
+    }
+  }
+
+  @each $display in $displays {
+    .#{$display} {
+      display: #{$display};
+    }
+  }
+
+  @each $orientation in $items {
+    .items-#{$orientation} {
+      align-items: #{get-justify-name($orientation)};
+    }
+
+    .justify-#{$orientation} {
+      justify-content: #{get-justify-name($orientation)};
+    }
   }
 }

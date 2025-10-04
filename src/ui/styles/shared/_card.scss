@@ -1,22 +1,25 @@
-[class$='-card'] {
+.protobooth [class$='-card'] {
+  text-align: left;
   padding: 24px;
-  margin: 24px;
   border-width: 1px;
   border-style: solid;
   border-color: var(--border-color);
   border-radius: 3px;
   background-color: var(--panel-background);
+  filter: drop-shadow(0 4px 8px rgba(#1e1e20, 0.1));
 }
 
-.error-card {
+.protobooth .error-card {
   border-color: var(--color-red-300);
   background-color: var(--color-red-50);
   color: var(--color-red-700);
 
   ul {
+    font-family: monospace;
+    font-size: 0.8rem;
+    padding-inline: 36px;
+    padding-block: 16px;
     background-color: var(--color-zinc-700);
     color: var(--color-red-50);
-    padding: 6px;
-    border-radius: 3px;
   }
 }

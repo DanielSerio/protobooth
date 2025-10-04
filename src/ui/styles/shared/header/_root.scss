@@ -1,0 +1,14 @@
+.protobooth header.header {
+  background-color: var(--panel-background);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 24px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+
+  h1 {
+    font-size: 1.25rem;
+  }
+}
