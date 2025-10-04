@@ -220,11 +220,9 @@ export class ScreenshotCaptureService {
 
     // Discover routes using injected route discovery
     const routes = await this.routeDiscovery.discoverRoutes(request.projectPath);
-    console.log('[ScreenshotService] Discovered routes:', routes.length);
 
     // Generate route instances with fixtures
     const routeInstances = await this.generateRouteInstances(routes);
-    console.log('[ScreenshotService] Generated route instances:', routeInstances.length, routeInstances);
 
     // Prepare fixtures for injection
     const authFixture = this.fixtureManager.getAuthFixture(request.authState);
@@ -291,10 +289,8 @@ export class ScreenshotCaptureService {
     const instances: string[] = [];
 
     for (const route of routes) {
-      console.log('[ScreenshotService] Processing route:', route.path, 'isDynamic:', route.isDynamic);
       if (route.isDynamic) {
         const routeInstances = this.fixtureManager.generateRouteInstances(route.path);
-        console.log('[ScreenshotService] Dynamic route expanded to:', routeInstances.length, 'instances');
         instances.push(...routeInstances);
       } else {
         instances.push(route.path);

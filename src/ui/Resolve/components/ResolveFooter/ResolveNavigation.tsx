@@ -2,7 +2,7 @@ import { ToolbarStack } from '@/ui/Core/components';
 import clsx from 'clsx';
 
 export function ResolveNavigation() {
-  const classNames = clsx('flex', 'justify-between');
+  const classNames = clsx('flex', 'items-center', 'justify-sp-between');
 
   return (
     <ToolbarStack.Toolbar className={classNames} id='navMenu'>

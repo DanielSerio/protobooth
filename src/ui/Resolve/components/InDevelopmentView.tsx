@@ -1,11 +1,8 @@
-import { Button } from '@/ui/Core/components';
 import { ErrorMessage } from './ErrorMessage';
 
 interface InDevelopmentViewProps {
   validationErrors: string[];
-  isCapturing: boolean;
   captureProgress: string | null;
-  onRequestReview: () => void;
 }
 
 /**
@@ -13,9 +10,7 @@ interface InDevelopmentViewProps {
  */
 export function InDevelopmentView({
   validationErrors,
-  isCapturing,
   captureProgress,
-  onRequestReview,
 }: InDevelopmentViewProps) {
   return (
     <div className='workflow-state' data-testid='workflow-in-development'>
@@ -30,16 +25,6 @@ export function InDevelopmentView({
           data-testid='configuration-error'
         />
       )}
-
-      <div className='actions'>
-        <Button
-          onClick={onRequestReview}
-          disabled={isCapturing || validationErrors.length > 0}
-          className='btn-primary'
-          data-testid='request-review-button'>
-          {isCapturing ? 'Capturing Screenshots...' : 'Request Review'}
-        </Button>
-      </div>
 
       {captureProgress && (
         <div className='progress-info' data-testid='capture-progress'>

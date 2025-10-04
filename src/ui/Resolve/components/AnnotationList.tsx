@@ -17,7 +17,11 @@ interface AnnotationItemProps {
   onMarkAsInProgress: (id: string) => Promise<void>;
 }
 
-function AnnotationItem({ annotation, onMarkAsResolved, onMarkAsInProgress }: AnnotationItemProps) {
+function AnnotationItem({
+  annotation,
+  onMarkAsResolved,
+  onMarkAsInProgress,
+}: AnnotationItemProps) {
   const [isUpdating, setIsUpdating] = React.useState(false);
 
   const handleMarkAsResolved = async () => {
@@ -57,50 +61,53 @@ function AnnotationItem({ annotation, onMarkAsResolved, onMarkAsInProgress }: An
 
   return (
     <div className={clsx('annotation-item', getPriorityClassName())}>
-      <div className="item-header">
-        <div className="meta-info">
-          <span className="route-label">{annotation.route}</span>
-          <span className="viewport-label">{annotation.viewport}</span>
-          <span className={clsx('priority-badge', `priority-${annotation.priority}`)}>
+      <div className='item-header'>
+        <div className='meta-info'>
+          <span className='route-label'>{annotation.route}</span>
+          <span className='viewport-label'>{annotation.viewport}</span>
+          <span
+            className={clsx(
+              'priority-badge',
+              `priority-${annotation.priority}`
+            )}>
             {annotation.priority} priority
           </span>
         </div>
         <StatusBadge status={annotation.status} />
       </div>
 
-      <div className="item-content">
+      <div className='item-content'>
         <p>{annotation.content}</p>
       </div>
 
-      <div className="position-info">
+      <div className='position-info'>
         Position: x={annotation.position.x}, y={annotation.position.y}
       </div>
 
-      <div className="actions">
+      <div className='actions'>
         {annotation.status === 'pending' && (
           <Button
             onClick={handleMarkAsInProgress}
             disabled={isUpdating}
-            size="small"
-            variant="secondary"
-          >
+            size='sm'
+            variant='secondary'>
             Start Working
           </Button>
         )}
 
-        {(annotation.status === 'pending' || annotation.status === 'in-progress') && (
+        {(annotation.status === 'pending' ||
+          annotation.status === 'in-progress') && (
           <Button
             onClick={handleMarkAsResolved}
             disabled={isUpdating}
-            size="small"
-            data-testid={`resolve-annotation-${annotation.id}`}
-          >
+            size='sm'
+            data-testid={`resolve-annotation-${annotation.id}`}>
             Mark as Resolved
           </Button>
         )}
       </div>
 
-      <div className="timestamp">
+      <div className='timestamp'>
         {annotation.timestamp instanceof Date
           ? annotation.timestamp.toISOString()
           : new Date(annotation.timestamp).toISOString()}
@@ -109,30 +116,41 @@ function AnnotationItem({ annotation, onMarkAsResolved, onMarkAsInProgress }: An
   );
 }
 
-export function AnnotationList({ annotations, onMarkAsResolved, onMarkAsInProgress, className, 'data-testid': testId }: AnnotationListProps) {
+export function AnnotationList({
+  annotations,
+  onMarkAsResolved,
+  onMarkAsInProgress,
+  className,
+  'data-testid': testId,
+}: AnnotationListProps) {
   if (annotations.length === 0) {
     return (
-      <div className={clsx('annotation-list', 'list-empty', className)} data-testid={testId}>
+      <div
+        className={clsx('annotation-list', 'list-empty', className)}
+        data-testid={testId}>
         <p>No annotations available.</p>
       </div>
     );
   }
 
   // Group annotations by status for better organization
-  const groupedAnnotations = annotations.reduce((groups, annotation) => {
-    const status = annotation.status;
-    if (!groups[status]) {
-      groups[status] = [];
-    }
-    groups[status].push(annotation);
-    return groups;
-  }, {} as Record<string, Annotation[]>);
+  const groupedAnnotations = annotations.reduce(
+    (groups, annotation) => {
+      const status = annotation.status;
+      if (!groups[status]) {
+        groups[status] = [];
+      }
+      groups[status].push(annotation);
+      return groups;
+    },
+    {} as Record<string, Annotation[]>
+  );
 
   return (
     <div className={clsx('annotation-list', className)} data-testid={testId}>
       {/* Pending annotations first */}
       {groupedAnnotations.pending && groupedAnnotations.pending.length > 0 && (
-        <div className="annotation-group">
+        <div className='annotation-group'>
           <h3>Pending ({groupedAnnotations.pending.length})</h3>
           {groupedAnnotations.pending.map(annotation => (
             <AnnotationItem
@@ -146,34 +164,36 @@ export function AnnotationList({ annotations, onMarkAsResolved, onMarkAsInProgre
       )}
 
       {/* In progress annotations */}
-      {groupedAnnotations['in-progress'] && groupedAnnotations['in-progress'].length > 0 && (
-        <div className="annotation-group">
-          <h3>In Progress ({groupedAnnotations['in-progress'].length})</h3>
-          {groupedAnnotations['in-progress'].map(annotation => (
-            <AnnotationItem
-              key={annotation.id}
-              annotation={annotation}
-              onMarkAsResolved={onMarkAsResolved}
-              onMarkAsInProgress={onMarkAsInProgress}
-            />
-          ))}
-        </div>
-      )}
+      {groupedAnnotations['in-progress'] &&
+        groupedAnnotations['in-progress'].length > 0 && (
+          <div className='annotation-group'>
+            <h3>In Progress ({groupedAnnotations['in-progress'].length})</h3>
+            {groupedAnnotations['in-progress'].map(annotation => (
+              <AnnotationItem
+                key={annotation.id}
+                annotation={annotation}
+                onMarkAsResolved={onMarkAsResolved}
+                onMarkAsInProgress={onMarkAsInProgress}
+              />
+            ))}
+          </div>
+        )}
 
       {/* Resolved annotations last */}
-      {groupedAnnotations.resolved && groupedAnnotations.resolved.length > 0 && (
-        <div className="annotation-group">
-          <h3>Resolved ({groupedAnnotations.resolved.length})</h3>
-          {groupedAnnotations.resolved.map(annotation => (
-            <AnnotationItem
-              key={annotation.id}
-              annotation={annotation}
-              onMarkAsResolved={onMarkAsResolved}
-              onMarkAsInProgress={onMarkAsInProgress}
-            />
-          ))}
-        </div>
-      )}
+      {groupedAnnotations.resolved &&
+        groupedAnnotations.resolved.length > 0 && (
+          <div className='annotation-group'>
+            <h3>Resolved ({groupedAnnotations.resolved.length})</h3>
+            {groupedAnnotations.resolved.map(annotation => (
+              <AnnotationItem
+                key={annotation.id}
+                annotation={annotation}
+                onMarkAsResolved={onMarkAsResolved}
+                onMarkAsInProgress={onMarkAsInProgress}
+              />
+            ))}
+          </div>
+        )}
     </div>
   );
 }

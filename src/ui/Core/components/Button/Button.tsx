@@ -4,11 +4,16 @@ import { BaseButtonProps } from './button.props';
 
 export interface ButtonProps extends BaseButtonProps {
   variant?: 'primary' | 'secondary' | 'danger';
-  size?: 'small' | 'medium' | 'large';
 }
 
 function ButtonComponent(
-  { variant = 'primary', size = 'medium', className, children, ...props }: ButtonProps,
+  {
+    variant = 'primary',
+    size = 'md',
+    className,
+    children,
+    ...props
+  }: ButtonProps,
   ref?: ForwardedRef<HTMLButtonElement>
 ) {
   const buttonClassName = clsx(

@@ -1,4 +1,4 @@
-import { Button, ProgressBar } from '@/ui/Core/components';
+import { ProgressBar } from '@/ui/Core/components';
 import { AnnotationList } from './AnnotationList';
 import type { Annotation } from '@/types/annotations';
 
@@ -14,7 +14,6 @@ interface SubmittedForDevelopmentViewProps {
   annotations: Annotation[];
   onMarkAsResolved: (annotationId: string) => Promise<void>;
   onMarkAsInProgress: (annotationId: string) => Promise<void>;
-  onResetWorkflow: () => void;
 }
 
 /**
@@ -25,7 +24,6 @@ export function SubmittedForDevelopmentView({
   annotations,
   onMarkAsResolved,
   onMarkAsInProgress,
-  onResetWorkflow,
 }: SubmittedForDevelopmentViewProps) {
   return (
     <div
@@ -52,14 +50,6 @@ export function SubmittedForDevelopmentView({
         onMarkAsInProgress={onMarkAsInProgress}
         data-testid='annotation-list'
       />
-
-      <div className='actions'>
-        <Button
-          onClick={onResetWorkflow}
-          data-testid='start-new-review-cycle-button'>
-          Start New Review Cycle
-        </Button>
-      </div>
     </div>
   );
 }

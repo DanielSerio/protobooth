@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
+import { VERSION, isCompatibleVersion } from '@/version';
 
 export type WorkflowState = 'in-development' | 'reviews-requested' | 'in-review' | 'submitted-for-development';
 
 export interface WorkflowStateData {
+  version: string;
   state: WorkflowState;
   timestamp: string;
   lastCaptureResult?: {
@@ -43,6 +45,14 @@ export function useWorkflowState(options: UseWorkflowStateOptions) {
       const stateContent = await options.fileOperations.readFile(stateFilePath);
       const stateData: WorkflowStateData = JSON.parse(stateContent);
 
+      // Check version compatibility
+      if (stateData.version && !isCompatibleVersion(stateData.version)) {
+        console.warn(
+          `Version mismatch: workflow state was created with v${stateData.version}, ` +
+          `but you're using v${VERSION}. This may cause compatibility issues.`
+        );
+      }
+
       setWorkflowState(stateData.state);
       setLastUpdated(stateData.timestamp);
       setLastCaptureResult(stateData.lastCaptureResult || null);
@@ -61,6 +71,7 @@ export function useWorkflowState(options: UseWorkflowStateOptions) {
       const timestamp = new Date().toISOString();
 
       const stateData: WorkflowStateData = {
+        version: VERSION,
         state: newState,
         timestamp,
         ...additionalData

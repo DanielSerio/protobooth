@@ -4,13 +4,12 @@ import { BaseButtonProps } from './button.props';
 
 export interface ButtonProps extends BaseButtonProps {
   variant?: 'primary' | 'secondary' | 'danger';
-  size?: 'small' | 'medium' | 'large';
 }
 
 function ToolbarButtonComponent(
   {
     variant = 'primary',
-    size = 'medium',
+    size = 'md',
     className,
     children,
     ...props

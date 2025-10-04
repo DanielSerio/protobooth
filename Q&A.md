@@ -13,7 +13,7 @@ This document captures key architectural and implementation questions with recom
 
 ---
 
-## Current Implementation Questions (Session 4 - October 2025)
+## Architecture & Workflow Questions
 
 ### Q1: UI-to-API Connection Strategy
 
@@ -511,34 +511,276 @@ describe('Annotation Workflow - TanStack Router Demo', () => {
 
 ---
 
-## Implementation Plan - Ready to Execute
+### Q8: Annotation Upload Mechanism (UX Step 5h)
 
-With all questions answered, the implementation plan is:
+**Context**: UX.PROCESS.md step 5h states "Engineers upload the `.protobooth` assets from the previous step via the resolve UI". This implies a file upload interface in development.
 
-**Phase 1: E2E Tests (RED)**
-1. Create `tests/e2e/request-review-e2e.test.ts`
-2. Write failing test for Request Review workflow
-3. Test will fail because browser adapters don't exist yet ✅ (expected)
+**Question**: How should engineers upload downloaded annotation .zip files back into their development environment?
 
-**Phase 2: Browser Adapters (GREEN)**
-1. Create `src/ui/browser-api-adapter.ts`
-2. Implement `createBrowserFileOperations()`
-3. Implement `createBrowserScreenshotService()`
-4. Wire adapters into `src/ui/Resolve/index.tsx`
-5. E2E test should pass ✅
+**Recommended Answer**: **No upload needed - use file-based workflow with .protobooth directory**.
 
-**Phase 3: Manual Verification**
-1. Run demo: `cd demos/tanstack-router && npm run dev`
-2. Navigate to `http://localhost:5173/protobooth/resolve`
-3. Click "Request Review" button
-4. Verify screenshots captured in `.protobooth/screenshots/`
-5. Verify workflow state in `.protobooth/workflow-state.json`
+**Rationale**:
+- **Simplicity** - Avoid complexity of file upload UI
+- **Git-friendly** - .protobooth directory can be git-ignored and manually synced
+- **Developer workflow** - Developers can extract .zip directly to project root
+- **Zero dependencies** - No need for file upload libraries
 
-**Phase 4: Repeat for AnnotateApp**
-1. Write E2E test for annotation workflow (RED)
-2. Wire browser adapters into `src/ui/Annotate/index.tsx` (GREEN)
-3. Test annotation save/publish workflow
+**Implementation Approach**:
 
-**Estimated Timeline**: 2-3 hours for complete Vite workflow
+**Developer Workflow**:
+1. Download `protobooth-annotations-{timestamp}.zip` from staging
+2. Extract to project root (overwrites `.protobooth/` directory)
+3. ResolveApp automatically detects new annotations via file operations
+4. Workflow state updates to "submitted-for-development"
 
-All decisions align with core principles. Ready to proceed with TDD cycle.
+**No UI Changes Required**:
+- ResolveApp already reads from `.protobooth/annotations.json`
+- No upload button needed
+- Simple file copy/paste workflow
+
+**Alternative Considered (Rejected)**: Browser-based file upload
+- **Reason**: Adds complexity for minimal benefit
+- **Developer preference**: File operations more familiar than upload forms
+
+**TDD Approach**: No new tests needed - existing file operation tests cover this.
+
+---
+
+### Q9: Annotation Readiness Communication (UX Step 5f)
+
+**Context**: UX.PROCESS.md step 5f states "It is somehow communicated to the engineers that annotations are ready". Current implementation has no notification mechanism.
+
+**Question**: How should engineers be notified when client annotations are ready?
+
+**Recommended Answer**: **Manual polling - engineers check staging periodically** (simplest approach for v1).
+
+**Rationale**:
+- **Simplicity** - No infrastructure needed
+- **Low frequency** - Prototype reviews happen every few days, not minutes
+- **Manual coordination** - Engineers and clients already communicate via email/Slack
+- **YAGNI** - Automated notifications add complexity without clear value
+
+**v1 Implementation (Current)**:
+- Engineers manually check staging URL periodically
+- Client sends email/Slack when annotations published
+- Engineers download .zip when notified
+
+**Future Enhancements (Optional)**:
+- **Email notification** - Server sends email when "Publish" clicked (requires email service)
+- **Webhook** - POST to configured URL when annotations published (simple, no email deps)
+- **Polling indicator** - ResolveApp shows "Check for Updates" button that queries staging API
+
+**Recommended Next Step**: Ship v1 with manual coordination, add webhook if clients request it.
+
+**TDD Approach**: No implementation needed for v1 (manual process).
+
+---
+
+### Q10: Client UX - "Dead-Simple" Annotation Interface
+
+**Context**: UX.PROCESS.md prioritizes "dead-simple" client experience. Current AnnotateApp design needs validation.
+
+**Question**: What specific UX patterns ensure the annotation interface is "dead-simple" for non-technical clients?
+
+**Recommended Answer**: **Minimize UI elements, maximize visual clarity**.
+
+**Required UX Patterns**:
+
+1. **Single Primary Action**
+   - One clear "Publish" button when done
+   - No confusing save/submit/export options
+
+2. **Visual Feedback**
+   - Highlight which screenshot is active
+   - Show count of annotations added
+   - Clear indication when annotation saved
+
+3. **Minimal Annotation Tools**
+   - Simple text comments only (v1)
+   - Optional: Arrow/box tools (v2)
+   - NO complex markup features
+
+4. **Clear Navigation**
+   - Previous/Next buttons for screenshots
+   - Thumbnail sidebar for quick access
+   - Current position indicator (e.g., "3 of 12")
+
+5. **Error Prevention**
+   - Confirm before leaving with unsaved annotations
+   - Auto-save annotations as they're created
+   - Clear "saved" indicator
+
+**Current Implementation Status**:
+- ✅ Single "Publish" button exists
+- ✅ Screenshot navigation implemented
+- ✅ Simple text-based annotations
+- ⏳ Missing: Visual feedback for annotation count
+- ⏳ Missing: Auto-save functionality
+
+**Next Steps**: Add auto-save and visual feedback in future UI refinement pass.
+
+---
+
+### Q11: Cleanup Command Safety
+
+**Context**: UX.PROCESS.md step 6 mentions "cleanup command". Need to define scope and safety measures.
+
+**Question**: What should `npx protobooth cleanup` do, and what safety measures prevent accidental data loss?
+
+**Recommended Answer**: **Remove protobooth files with confirmation prompt and backup option**.
+
+**Recommended Scope**:
+
+**Files to Remove**:
+- `.protobooth/` directory (all screenshots, annotations, workflow state)
+- `routes.json` (generated by route discovery)
+- Injected routes from router configuration
+- Plugin configuration from vite.config.ts / next.config.js
+
+**Files to Preserve**:
+- Application source code (obviously)
+- Git history
+- node_modules (uninstall is separate step)
+
+**Safety Measures**:
+
+1. **Confirmation Prompt**
+   ```bash
+   $ npx protobooth cleanup
+   ⚠️  This will permanently delete:
+     - .protobooth/ directory (screenshots, annotations)
+     - routes.json
+     - Protobooth plugin configuration
+
+   Create backup before cleanup? (Y/n): y
+   Proceed with cleanup? (y/N): y
+   ```
+
+2. **Automatic Backup**
+   - Create `.protobooth-backup-{timestamp}.zip` before deletion
+   - Store in project root
+   - Include README explaining backup contents
+
+3. **Dry-run Option**
+   ```bash
+   $ npx protobooth cleanup --dry-run
+   Would delete:
+     - .protobooth/
+     - routes.json
+     - Plugin config in vite.config.ts
+   ```
+
+**Implementation**:
+```typescript
+// src/cli/cleanup.ts (under 201 lines)
+export async function cleanup(options: { dryRun?: boolean; backup?: boolean }) {
+  if (options.backup) {
+    await createBackup();
+  }
+
+  if (options.dryRun) {
+    console.log('Would delete: .protobooth/, routes.json');
+    return;
+  }
+
+  const confirmed = await promptConfirm('Proceed with cleanup?');
+  if (!confirmed) return;
+
+  await removeDirectory('.protobooth');
+  await removeFile('routes.json');
+  await removePluginConfig();
+
+  console.log('✅ Cleanup complete. Backup saved to .protobooth-backup-{timestamp}.zip');
+}
+```
+
+**TDD Approach**:
+1. **RED**: Write tests for cleanup command
+2. **GREEN**: Implement with safety measures
+3. **REFACTOR**: Extract backup logic if needed
+
+---
+
+### Q12: Staging Deployment Strategy
+
+**Context**: UX.PROCESS.md step 5d mentions "deployment to staging occurs (manual or automatic)". Need to clarify approach.
+
+**Question**: Should protobooth provide deployment automation, or rely on manual/existing CI/CD?
+
+**Recommended Answer**: **Manual deployment (v1) - rely on existing workflows**.
+
+**Rationale**:
+- **Simplicity** - Don't reinvent deployment infrastructure
+- **Flexibility** - Every team has different staging setups
+- **Separation of concerns** - Protobooth handles screenshots/annotations, not deployment
+- **No lock-in** - Works with any deployment method
+
+**v1 Approach (Recommended)**:
+
+**Manual Deployment**:
+```bash
+# After "Request Review" completes
+$ ls .protobooth/screenshots/
+home-desktop.png  about-mobile.png  ...
+
+# Deploy using existing method
+$ rsync -av .protobooth/ user@staging:/var/www/protobooth/
+# OR
+$ git add .protobooth/ && git push staging
+# OR
+$ scp -r .protobooth/ staging:/var/www/
+```
+
+**What Protobooth Provides**:
+- ✅ Generate screenshots in `.protobooth/` directory
+- ✅ Provide deployment instructions in UI
+- ❌ NO automated deployment (too many variables)
+
+**Deployment Instructions UI**:
+```typescript
+// After screenshot capture completes
+<DeploymentInstructions>
+  <h3>Screenshots Ready</h3>
+  <p>12 screenshots captured in .protobooth/screenshots/</p>
+
+  <h4>Deploy to Staging</h4>
+  <CodeBlock>
+    rsync -av .protobooth/ user@staging:/var/www/
+  </CodeBlock>
+
+  <p>Or use your existing deployment process.</p>
+</DeploymentInstructions>
+```
+
+**Future Enhancement (Optional)**:
+- Plugin hooks for custom deployment (e.g., `onScreenshotComplete` callback)
+- Example integrations for common platforms (Vercel, Netlify)
+
+**Current Status**: DeploymentInstructions component already exists and shows manual deployment guidance.
+
+**TDD Approach**: No new implementation needed - manual process documented in UI.
+
+---
+
+## Decision Summary
+
+Based on core principles and UX.PROCESS.md requirements:
+
+1. **UI-API Connection**: Browser adapter layer (Q1)
+2. **Testing Strategy**: Hybrid integration + E2E (Q2)
+3. **Implementation Priority**: Vite first, then Next.js (Q3)
+4. **Download Scope**: .zip with JSON + screenshots (Q4)
+5. **E2E Testing**: Write tests first, use demos (Q5-Q7)
+6. **Annotation Upload**: File-based, no UI upload needed (Q8)
+7. **Communication**: Manual polling for v1 (Q9)
+8. **Client UX**: Minimal UI, clear feedback (Q10)
+9. **Cleanup Safety**: Confirmation + backup (Q11)
+10. **Deployment**: Manual via existing workflows (Q12)
+
+All decisions prioritize:
+- ✅ Test-first development
+- ✅ Simplicity over cleverness
+- ✅ SOLID principles
+- ✅ 201-line file limit
+- ✅ Zero `any` types
+- ✅ User experience (client-first, engineer-second)

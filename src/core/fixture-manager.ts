@@ -156,10 +156,6 @@ export class FixtureManager {
 
   async setFixtures(config: FixtureConfig): Promise<void> {
     this.config = config;
-    console.log('[FixtureManager] Fixtures set:', {
-      hasDynamicRoutes: !!config.dynamicRoutes,
-      dynamicRouteKeys: Object.keys(config.dynamicRoutes || {})
-    });
   }
 
   getAuthFixture(state: 'authenticated' | 'unauthenticated'): AuthFixture | null {
@@ -188,14 +184,7 @@ export class FixtureManager {
 
   generateRouteInstances(routePattern: string): string[] {
     const fixtures = this.getDynamicRouteFixtures(routePattern);
-    console.log('[FixtureManager] Generating route instances:', {
-      routePattern,
-      fixturesFound: fixtures.length,
-      fixtures: fixtures
-    });
-    const instances = this.routeGenerator.generate(routePattern, fixtures);
-    console.log('[FixtureManager] Generated instances:', instances);
-    return instances;
+    return this.routeGenerator.generate(routePattern, fixtures);
   }
 
   validateFixtureConfig(config: unknown): { success: boolean; error?: string } {

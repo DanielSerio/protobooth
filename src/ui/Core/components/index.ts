@@ -5,3 +5,5 @@ export { Button } from './Button';
 export { TextArea } from './TextArea';
 export { StatusBadge } from './StatusBadge';
 export { ProgressBar } from './ProgressBar';
+export { ConfirmDialog } from './ConfirmDialog';
+export { LoadingOverlay } from './LoadingOverlay';

@@ -348,7 +348,7 @@ protobooth/
 9. **Write failing tests** for end-to-end workflow → **Implement** → **Refactor**
 
 ### UI Development Principles
-- **SCSS Namespacing**: All styles must use `.protobooth-*` class names to avoid conflicts
+- **SCSS Namespacing**: Entire app wrapped in single `.protobooth` class at root to avoid conflicts (do NOT prefix every class name)
 - **Route Safety**: UI routes (`/protobooth/*`) must not interfere with host application routes
 - **Component Isolation**: React components should be self-contained with minimal external dependencies
 - **File Size Limits**: Apply 201-line limit to `.tsx` and `.scss` files
@@ -478,7 +478,7 @@ expect(mockService.method).toHaveBeenCalledOnce(); // May fail due to timing
 
 ### UI Implementation
 - **Framework**: React with SCSS for styling
-- **CSS Namespacing**: All UI components use namespaced class names (`.protobooth-*`) to avoid conflicts with host application
+- **CSS Namespacing**: Entire app wrapped in single `.protobooth` class at root to avoid conflicts (do NOT prefix every class name)
 - **Route Integration**: Two routes injected into host app's dev server router:
   - `/protobooth/resolve` - Developer resolution interface with "Request Review" button
   - `/protobooth/annotate` - Client annotation interface with "Publish" button (staging only)

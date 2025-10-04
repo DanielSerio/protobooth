@@ -1,4 +1,3 @@
-import { Button } from '@/ui/Core/components';
 import { DeploymentInstructions } from './DeploymentInstructions';
 
 interface CaptureResultSummary {
@@ -10,8 +9,6 @@ interface CaptureResultSummary {
 interface ReviewsRequestedViewProps {
   captureProgress: string | null;
   lastCaptureResult: CaptureResultSummary | null;
-  isCapturing: boolean;
-  onRecapture: () => void;
 }
 
 /**
@@ -20,8 +17,6 @@ interface ReviewsRequestedViewProps {
 export function ReviewsRequestedView({
   captureProgress,
   lastCaptureResult,
-  isCapturing,
-  onRecapture,
 }: ReviewsRequestedViewProps) {
   return (
     <div className='workflow-state' data-testid='workflow-reviews-requested'>
@@ -36,23 +31,12 @@ export function ReviewsRequestedView({
       )}
 
       {lastCaptureResult && (
-        <>
-          <DeploymentInstructions
-            screenshotCount={lastCaptureResult.screenshotCount}
-            outputPath={lastCaptureResult.outputPath}
-            instructions={lastCaptureResult.deploymentInstructions || []}
-            data-testid='deployment-instructions'
-          />
-
-          <div className='actions'>
-            <Button
-              onClick={onRecapture}
-              disabled={isCapturing}
-              data-testid='recapture-button'>
-              {isCapturing ? 'Recapturing...' : 'Recapture Screenshots'}
-            </Button>
-          </div>
-        </>
+        <DeploymentInstructions
+          screenshotCount={lastCaptureResult.screenshotCount}
+          outputPath={lastCaptureResult.outputPath}
+          instructions={lastCaptureResult.deploymentInstructions || []}
+          data-testid='deployment-instructions'
+        />
       )}
     </div>
   );
