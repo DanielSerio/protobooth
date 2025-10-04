@@ -47,24 +47,26 @@ export function withProtobooth(
   const plugin = createNextPlugin(protoboothConfig);
 
   // Create middleware for custom Next.js servers
-  const middleware = async (req: { url?: string }, res: {
-    setHeader: (name: string, value: string) => void;
-    writeHead: (statusCode: number) => void;
-    end: (data?: string) => void;
-  }, next: () => void): Promise<void> => {
-    const url = req.url || '';
+  const middleware = async (req: unknown, res: unknown, next: () => void): Promise<void> => {
+    const request = req as { url?: string };
+    const response = res as {
+      setHeader: (name: string, value: string) => void;
+      writeHead: (statusCode: number) => void;
+      end: (data?: string) => void;
+    };
+    const url = request.url || '';
 
     if (url.startsWith('/protobooth/resolve')) {
       const html = generateUIHtml('resolve', protoboothConfig);
-      res.setHeader('Content-Type', 'text/html');
-      res.end(html);
+      response.setHeader('Content-Type', 'text/html');
+      response.end(html);
       return;
     }
 
     if (url.startsWith('/protobooth/annotate')) {
       const html = generateUIHtml('annotate', protoboothConfig);
-      res.setHeader('Content-Type', 'text/html');
-      res.end(html);
+      response.setHeader('Content-Type', 'text/html');
+      response.end(html);
       return;
     }
 

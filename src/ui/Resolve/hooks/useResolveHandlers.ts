@@ -50,7 +50,7 @@ export function useResolveHandlers({
       try {
         await captureScreenshots({
           appUrl: window.location.origin,
-          projectPath: config?.projectPath || process.cwd(),
+          projectPath: config?.projectPath || '', // Server will use its own projectRoot
           routerType: config?.routerType || 'vite',
           authState: 'authenticated',
         });

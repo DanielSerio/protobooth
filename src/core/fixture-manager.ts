@@ -65,8 +65,8 @@ export class ZodConfigValidator implements ConfigValidator {
 export class DefaultRouteInstanceGenerator implements RouteInstanceGenerator {
   generate(routePattern: string, fixtures: DynamicRouteFixture[]): string[] {
     if (fixtures.length === 0) {
-      // Check if this is actually a dynamic route
-      if (routePattern.includes('[') && routePattern.includes(']')) {
+      // Check if this is actually a dynamic route (Next.js [param] or TanStack $param)
+      if ((routePattern.includes('[') && routePattern.includes(']')) || routePattern.includes('$')) {
         return [];
       }
       // Static route
@@ -76,7 +76,7 @@ export class DefaultRouteInstanceGenerator implements RouteInstanceGenerator {
     return fixtures.map(fixture => {
       let instance = routePattern;
 
-      // Handle catch-all routes [...param]
+      // Handle Next.js catch-all routes [...param]
       const catchAllMatch = instance.match(/\[\.\.\.(\w+)\]/);
       if (catchAllMatch) {
         const paramName = catchAllMatch[1];
@@ -85,11 +85,23 @@ export class DefaultRouteInstanceGenerator implements RouteInstanceGenerator {
         return instance;
       }
 
-      // Handle regular dynamic routes [param]
-      const paramMatches = instance.match(/\[(\w+)\]/g);
-      if (paramMatches) {
-        paramMatches.forEach(match => {
+      // Handle Next.js regular dynamic routes [param]
+      const nextJsParamMatches = instance.match(/\[(\w+)\]/g);
+      if (nextJsParamMatches) {
+        nextJsParamMatches.forEach(match => {
           const paramName = match.slice(1, -1); // Remove [ and ]
+          const value = fixture[paramName];
+          if (value !== undefined) {
+            instance = instance.replace(match, String(value));
+          }
+        });
+      }
+
+      // Handle TanStack Router dynamic routes $param
+      const tanstackParamMatches = instance.match(/\$(\w+)/g);
+      if (tanstackParamMatches) {
+        tanstackParamMatches.forEach(match => {
+          const paramName = match.slice(1); // Remove $
           const value = fixture[paramName];
           if (value !== undefined) {
             instance = instance.replace(match, String(value));
@@ -144,6 +156,10 @@ export class FixtureManager {
 
   async setFixtures(config: FixtureConfig): Promise<void> {
     this.config = config;
+    console.log('[FixtureManager] Fixtures set:', {
+      hasDynamicRoutes: !!config.dynamicRoutes,
+      dynamicRouteKeys: Object.keys(config.dynamicRoutes || {})
+    });
   }
 
   getAuthFixture(state: 'authenticated' | 'unauthenticated'): AuthFixture | null {
@@ -172,7 +188,14 @@ export class FixtureManager {
 
   generateRouteInstances(routePattern: string): string[] {
     const fixtures = this.getDynamicRouteFixtures(routePattern);
-    return this.routeGenerator.generate(routePattern, fixtures);
+    console.log('[FixtureManager] Generating route instances:', {
+      routePattern,
+      fixturesFound: fixtures.length,
+      fixtures: fixtures
+    });
+    const instances = this.routeGenerator.generate(routePattern, fixtures);
+    console.log('[FixtureManager] Generated instances:', instances);
+    return instances;
   }
 
   validateFixtureConfig(config: unknown): { success: boolean; error?: string } {

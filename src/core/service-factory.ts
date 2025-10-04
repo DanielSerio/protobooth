@@ -22,11 +22,16 @@ export class ServiceFactory {
     // Create file operations
     this.fileOperations = createFileOperations(projectRoot);
 
-    // Create fixture manager with config
+    // Create fixture manager (will be initialized async)
     this.fixtureManager = new FixtureManager(this.fileOperations);
-    if (config.fixtures) {
-      // Note: setFixtures is async but we'll handle initialization in async methods
-      this.fixtureManager.setFixtures(config.fixtures);
+  }
+
+  /**
+   * Initialize fixture manager with config
+   */
+  private async initializeFixtures(): Promise<void> {
+    if (this.config.fixtures) {
+      await this.fixtureManager.setFixtures(this.config.fixtures);
     }
   }
 
@@ -54,6 +59,9 @@ export class ServiceFactory {
    * Create screenshot capture service
    */
   async createScreenshotService(): Promise<ScreenshotCaptureService> {
+    // Ensure fixtures are initialized before creating service
+    await this.initializeFixtures();
+
     const browser = await this.getBrowser();
     const outputDir = this.config.outputDir || '.protobooth/screenshots';
     const viewports: ViewportConfig[] = this.config.viewports || [
